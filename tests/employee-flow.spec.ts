@@ -15,7 +15,7 @@ test.beforeEach(async ({ page }) => {
 
 test("employee can sign in and navigate all five tabs", async ({ page }) => {
   await page.goto("/login");
-  await page.getByLabel("Work email").fill("yemi@wellstaq.test");
+  await page.getByLabel("Email Address").fill("yemi@wellstaq.test");
   await page.locator('input[name="password"]').fill("wellstaq-demo");
   await page.getByRole("button", { name: "Sign in" }).click();
   await expect(page.getByText("Good morning,").or(page.getByText("Good afternoon,")).or(page.getByText("Good evening,"))).toBeVisible();

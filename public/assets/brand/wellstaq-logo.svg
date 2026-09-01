@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="70 75 1260 340" role="img" aria-labelledby="title">
+  <title id="title">Wellstaq</title>
+  <path d="M244 107c-91 5-148 60-148 137 0 75 56 126 139 128 22-42 27-84 9-126-20-48-19-92 0-139Z" fill="#ea6a05"/>
+  <path d="M268 107c91 5 148 60 148 137 0 75-56 126-139 128-22-42-27-84-9-126 20-48 19-92 0-139Z" fill="#37b047"/>
+  <path d="M256 119v270M171 222c39 17 67 49 85 96M341 222c-39 17-67 49-85 96" fill="none" stroke="#fff" stroke-width="18" stroke-linecap="round"/>
+  <text x="455" y="337" fill="#172b4d" font-family="Inter, Arial, sans-serif" font-size="190" font-weight="600" letter-spacing="-8">Wellstaq</text>
+</svg>

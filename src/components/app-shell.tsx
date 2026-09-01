@@ -1,10 +1,17 @@
-import { useEffect, useState } from "react";
-import { Outlet } from "react-router-dom";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { Outlet, useLocation } from "react-router-dom";
 import { BottomNav } from "./bottom-nav";
 import { OfflineBanner } from "./ui/states";
 
 export function AppShell() {
   const [online, setOnline] = useState(navigator.onLine);
+  const location = useLocation();
+  const contentRef = useRef<HTMLElement>(null);
+
+  useLayoutEffect(() => {
+    if (contentRef.current) contentRef.current.scrollTop = 0;
+  }, [location.pathname]);
+
   useEffect(() => {
     const sync = () => setOnline(navigator.onLine);
     window.addEventListener("online", sync);
@@ -17,7 +24,7 @@ export function AppShell() {
   return (
     <div className="mobile-shell">
       {!online && <OfflineBanner />}
-      <main className="shell-content"><Outlet /></main>
+      <main ref={contentRef} className="shell-content"><Outlet /></main>
       <BottomNav />
     </div>
   );

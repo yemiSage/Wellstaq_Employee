@@ -5,12 +5,16 @@ import { defineConfig } from "vite";
 import { VitePWA } from "vite-plugin-pwa";
 
 export default defineConfig({
-  base: "./",
+  // Vercel serves this app from the deployment origin. Root-absolute URLs keep
+  // lazy chunks, the manifest and the service worker on the same stable scope.
+  base: "/",
   plugins: [
     react(),
     tailwindcss(),
     VitePWA({
-      registerType: "prompt",
+      // Activate each deployment immediately so an older service worker cannot
+      // keep serving an index that points at chunks Vercel has already replaced.
+      registerType: "autoUpdate",
       includeAssets: ["assets/figma/wellstaq-logo.png"],
       manifest: {
         name: "Wellstaq Employee",
@@ -19,16 +23,18 @@ export default defineConfig({
         theme_color: "#FAFAF8",
         background_color: "#FAFAF8",
         display: "standalone",
-        start_url: "./",
-        scope: "./",
+        start_url: "/",
+        scope: "/",
         orientation: "portrait-primary",
         icons: [
-          { src: "icons/icon.svg", sizes: "any", type: "image/svg+xml", purpose: "any" },
-          { src: "icons/icon-maskable.svg", sizes: "any", type: "image/svg+xml", purpose: "maskable" }
+          { src: "/icons/icon.svg", sizes: "any", type: "image/svg+xml", purpose: "any" },
+          { src: "/icons/icon-maskable.svg", sizes: "any", type: "image/svg+xml", purpose: "maskable" }
         ]
       },
       workbox: {
         navigateFallback: "/index.html",
+        clientsClaim: true,
+        skipWaiting: true,
         globPatterns: ["**/*.{js,css,html,png,jpg,jpeg,svg,woff2}"],
         runtimeCaching: [
           {

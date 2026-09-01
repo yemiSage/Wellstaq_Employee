@@ -66,3 +66,31 @@ npm run cap:sync
 ```
 
 Replace `BrowserAuthVault` with platform secure storage before shipping native binaries, then add APNs/FCM registration using the generated push-token operations.
+
+## Deployment
+
+Build the static PWA and publish the `dist/` directory with any HTTPS-capable static host. Configure these environment variables in the host rather than committing a `.env.local` file:
+
+| Variable | Required | Purpose |
+| --- | --- | --- |
+| `VITE_API_BASE_URL` | Yes | Wellstaq API origin. |
+| `VITE_ENABLE_OAUTH` | No | Set to `true` only when OAuth is configured. |
+| `VITE_GOOGLE_CLIENT_ID` | With Google OAuth | Existing-user Google sign-in client ID. |
+| `VITE_APPLE_CLIENT_ID` | With Apple OAuth | Existing-user Apple sign-in client ID. |
+
+The API must permit the deployed origin through credentialed CORS and allow the `Authorization`, `Content-Type`, and `X-Request-ID` headers. Keep the API origin HTTPS in production: service-worker installation, browser credential protections, and installability depend on it.
+
+The included GitHub Actions workflow runs contract, lint, type, unit/integration, build, and mobile-browser checks on pushes and pull requests. Before connecting a production host, complete the live smoke checklist and verify the production refresh-token behavior with a non-production employee account.
+
+## Repository workflow
+
+```bash
+# Refresh the checked-in contract only after reviewing the backend change
+npm run api:update
+
+# Keep the same quality gate used by CI
+npm run check
+npm run test:e2e -- --project=mobile-chrome
+```
+
+Commit the OpenAPI snapshot and regenerated `src/api/generated/schema.d.ts` together. This ensures builds remain deterministic even if the hosted API documentation changes later.

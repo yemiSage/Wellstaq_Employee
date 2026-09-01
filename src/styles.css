@@ -27,6 +27,7 @@ strong { font-weight: 600; }
 a { color: inherit; text-decoration: none; }
 img { display: block; max-width: 100%; }
 #root { min-height: 100dvh; }
+h1 { font-size: 24px !important; }
 
 .mobile-shell, #root > div > main, #root > main { position: relative; width: min(100%, 480px); min-height: 100dvh; margin-inline: auto; background: #fafaf8; box-shadow: 0 0 0 1px rgb(32 32 32 / 4%); }
 .shell-content { min-height: 100dvh; padding-bottom: calc(88px + env(safe-area-inset-bottom)); }

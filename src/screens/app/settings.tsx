@@ -19,9 +19,9 @@ export function PreferencesScreen() {
 }
 
 export function SecurityScreen() {
-  const form = useForm<{ current_password: string; new_password: string }>({ defaultValues: { current_password: "", new_password: "" } });
+  const form = useForm<{ current_password: string; new_password: string }>({ defaultValues: { current_password: "", new_password: "" }, mode: "onChange" });
   const change = useMutation({ mutationFn: employeeApi.changePassword, onSuccess: () => { toast.success("Password changed."); form.reset(); } });
-  return <div><PageHeader title="Password & 2FA" back /><form className="page-pad grid gap-5" onSubmit={form.handleSubmit((values) => change.mutate(values))}><Card className="security-callout"><SecuritySafe color="currentColor" size="28" variant="TwoTone" /><div><strong>Protect your wellbeing space</strong><p>A unique password and two-factor authentication help keep personal responses private.</p></div></Card><Field label="Current password"><Input type="password" autoComplete="current-password" {...form.register("current_password", { required: true })} /></Field><Field label="New password"><Input type="password" autoComplete="new-password" {...form.register("new_password", { required: true, minLength: 8 })} /></Field><Button disabled={change.isPending}>Change password</Button><Button type="button" variant="secondary">Set up two-factor authentication</Button></form></div>;
+  return <div><PageHeader title="Password & 2FA" back /><form className="page-pad grid gap-5" onSubmit={form.handleSubmit((values) => change.mutate(values))}><Card className="security-callout"><SecuritySafe color="currentColor" size="28" variant="TwoTone" /><div><strong>Protect your wellbeing space</strong><p>A unique password and two-factor authentication help keep personal responses private.</p></div></Card><Field label="Current password"><Input type="password" autoComplete="current-password" {...form.register("current_password", { required: true })} /></Field><Field label="New password"><Input type="password" autoComplete="new-password" {...form.register("new_password", { required: true, minLength: 8 })} /></Field><Button disabled={!form.formState.isValid || change.isPending}>Change password</Button><Button type="button" variant="secondary">Set up two-factor authentication</Button></form></div>;
 }
 
 export function SessionsScreen() {

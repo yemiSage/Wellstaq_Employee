@@ -7,7 +7,12 @@ const envSchema = z.object({
   VITE_ENABLE_OAUTH: z.enum(["true", "false"]).default("false"),
 });
 
-const raw = envSchema.parse(import.meta.env);
+const raw = envSchema.parse({
+  ...import.meta.env,
+  // Some hosts expose unset environment variables as an empty string. Treat it
+  // as absent so the safe production API default is used instead of crashing.
+  VITE_API_BASE_URL: import.meta.env.VITE_API_BASE_URL || undefined,
+});
 
 export const env = {
   apiBaseUrl: raw.VITE_API_BASE_URL.replace(/\/$/, ""),

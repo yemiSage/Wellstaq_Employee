@@ -47,9 +47,10 @@ img { display: block; max-width: 100%; }
 .auth-sheet { z-index: 2; display: grid; width: 100%; margin-top: auto; gap: 24px; padding: 32px 16px calc(32px + env(safe-area-inset-bottom)); border-radius: 28px 28px 0 0; background: rgb(255 255 255 / 94%); box-shadow: 0 -16px 60px rgb(70 53 30 / 8%); backdrop-filter: blur(20px); }
 .auth-copy { display: grid; gap: 8px; }
 .auth-copy h1, .onboarding-top h1 { margin: 0; font: 600 clamp(30px, 9vw, 38px)/1.02 "Bricolage Grotesque", sans-serif; letter-spacing: -.045em; }
-.auth-copy-login h1 { font-size: 24px; font-weight: 600; letter-spacing: -.025em; }
+.auth-copy-login h1 { letter-spacing: -.045em; }
 .auth-copy p:last-child, .onboarding-top > p:last-child { margin: 0; color: #686761; font-size: 14px; line-height: 1.6; }
 .auth-back { display: inline-flex; min-height: 44px; width: fit-content; align-items: center; gap: 6px; color: #202020; font-size: 14px; font-weight: 600; }
+.auth-back + .auth-copy { margin-top: -12px; }
 .auth-support-link { min-height: 44px; align-self: start; color: #686761; font-size: 14px; font-weight: 600; }
 .input-with-icon { position: relative; }
 .input-with-icon > svg { position: absolute; z-index: 1; left: 14px; top: 14px; color: #777; }

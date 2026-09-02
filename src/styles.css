@@ -50,7 +50,7 @@ h1 { font-size: 24px !important; }
 .auth-glow { position: absolute; border-radius: 999px; filter: blur(60px); opacity: .42; }
 .auth-glow-one { top: 2%; left: -30%; width: 330px; height: 330px; background: #ffd6ad; }
 .auth-glow-two { top: 18%; right: -35%; width: 310px; height: 310px; background: #bcebc3; }
-.auth-sheet { z-index: 2; display: grid; width: 100%; height: calc(100% - clamp(112px, 24dvh, 140px)); margin-top: auto; align-content: start; gap: 24px; overflow-x: hidden; overflow-y: auto; overscroll-behavior-y: contain; padding: 40px 16px calc(40px + env(safe-area-inset-bottom)); border-radius: 28px 28px 0 0; background: rgb(255 255 255 / 94%); box-shadow: 0 -16px 60px rgb(70 53 30 / 8%); backdrop-filter: blur(20px); scrollbar-width: none; }
+.auth-sheet { z-index: 2; display: grid; width: 100%; max-height: calc(100% - clamp(112px, 24dvh, 140px)); margin-top: auto; align-content: start; gap: 24px; overflow-x: hidden; overflow-y: auto; overscroll-behavior-y: contain; padding: 40px 16px calc(40px + env(safe-area-inset-bottom)); border-radius: 28px 28px 0 0; background: rgb(255 255 255 / 94%); box-shadow: 0 -16px 60px rgb(70 53 30 / 8%); backdrop-filter: blur(20px); scrollbar-width: none; }
 .auth-sheet::-webkit-scrollbar { display: none; }
 .auth-copy { display: grid; gap: 8px; }
 .auth-copy h1, .onboarding-top h1 { margin: 0; font: 600 clamp(30px, 9vw, 38px)/1.02 "Bricolage Grotesque", sans-serif; letter-spacing: -.045em; }

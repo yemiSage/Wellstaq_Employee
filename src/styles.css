@@ -44,13 +44,14 @@ h1 { font-size: 24px !important; }
 .section-heading h2, .action-list > h2 { margin: 4px 0 0; font: 600 21px/1.15 "Bricolage Grotesque", sans-serif; letter-spacing: -.02em; }
 .section-heading > button { min-height: 44px; border: 0; background: transparent; color: #ea6a05; font-size: 13px; font-weight: 600; }
 
-.auth-scene { position: relative; display: flex; align-items: center; flex-direction: column; overflow-x: hidden !important; overflow-y: auto !important; overscroll-behavior-y: contain; background: #f9f7f2; scrollbar-width: none; }
+.auth-scene { position: relative; display: flex; align-items: center; flex-direction: column; overflow: hidden !important; background: #f9f7f2; }
 .auth-scene::-webkit-scrollbar { display: none; }
 .auth-brand { position: relative; z-index: 1; width: auto; height: clamp(42px, 7.5dvh, 56px); margin-top: max(calc(24px + env(safe-area-inset-top)), 6dvh); }
 .auth-glow { position: absolute; border-radius: 999px; filter: blur(60px); opacity: .42; }
 .auth-glow-one { top: 2%; left: -30%; width: 330px; height: 330px; background: #ffd6ad; }
 .auth-glow-two { top: 18%; right: -35%; width: 310px; height: 310px; background: #bcebc3; }
-.auth-sheet { z-index: 2; display: grid; width: 100%; margin-top: auto; gap: 24px; padding: 32px 16px calc(24px + env(safe-area-inset-bottom)); border-radius: 28px 28px 0 0; background: rgb(255 255 255 / 94%); box-shadow: 0 -16px 60px rgb(70 53 30 / 8%); backdrop-filter: blur(20px); }
+.auth-sheet { z-index: 2; display: grid; width: 100%; height: calc(100% - clamp(112px, 24dvh, 140px)); margin-top: auto; align-content: start; gap: 24px; overflow-x: hidden; overflow-y: auto; overscroll-behavior-y: contain; padding: 40px 16px calc(40px + env(safe-area-inset-bottom)); border-radius: 28px 28px 0 0; background: rgb(255 255 255 / 94%); box-shadow: 0 -16px 60px rgb(70 53 30 / 8%); backdrop-filter: blur(20px); scrollbar-width: none; }
+.auth-sheet::-webkit-scrollbar { display: none; }
 .auth-copy { display: grid; gap: 8px; }
 .auth-copy h1, .onboarding-top h1 { margin: 0; font: 600 clamp(30px, 9vw, 38px)/1.02 "Bricolage Grotesque", sans-serif; letter-spacing: -.045em; }
 .auth-copy-login h1 { letter-spacing: -.045em; }
@@ -58,7 +59,8 @@ h1 { font-size: 24px !important; }
 .auth-back { display: inline-flex; min-height: 44px; width: fit-content; align-items: center; gap: 6px; color: #202020; font-size: 14px; font-weight: 600; }
 .auth-back + .auth-copy { margin-top: -12px; }
 .field-label-row { display: flex; min-height: 24px; align-items: center; justify-content: space-between; gap: 16px; }
-.auth-support-link { display: inline-flex; min-height: 24px; align-items: center; color: #ea6a05; font-size: 13px; font-weight: 600; }
+.auth-support-link { display: inline-flex; min-height: 24px; align-items: center; color: inherit; font-size: 13px; font-weight: 600; }
+.invite-code-field { padding-bottom: 40px; }
 .input-with-icon { position: relative; }
 .input-with-icon > svg { position: absolute; z-index: 1; left: 14px; top: 14px; color: #777; }
 .input-with-icon input { padding-inline: 43px; }
@@ -238,6 +240,6 @@ h1 { font-size: 24px !important; }
 .wellstaq-spinner { width: 36px; height: 36px; border: 4px solid #ffe1ca; border-top-color: #ea6a05; border-radius: 50%; animation: spin .7s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
 @media (min-width: 769px) { .mobile-shell, #root > main { height: calc(100dvh - 48px); margin-block: 24px; border-radius: 32px; } .bottom-nav { bottom: 24px; border-radius: 0 0 32px 32px; } .auth-sheet { padding-inline: 24px; } }
-@media (max-height: 700px) { .auth-brand { height: 40px; margin-top: max(calc(16px + env(safe-area-inset-top)), 3dvh); } .auth-sheet { margin-top: 24px; gap: 16px; padding-top: 24px; } .auth-copy { gap: 4px; } }
+@media (max-height: 700px) { .auth-brand { height: 40px; margin-top: max(calc(16px + env(safe-area-inset-top)), 3dvh); } .auth-sheet { gap: 16px; } .auth-copy { gap: 4px; } }
 @media (max-width: 350px) { .page-pad { padding-inline: 14px; } .home-header, .section-block { padding-inline: 14px; } .wellbeing-ribbon { margin-inline: 14px; } .streak-card { width: calc(100% - 28px); margin-inline: 14px; } .event-list-card { grid-template-columns: 92px 1fr; } .event-list-card > img { width: 92px; } }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; } }

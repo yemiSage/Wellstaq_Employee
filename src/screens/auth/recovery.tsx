@@ -3,6 +3,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Link, useSearchParams } from "react-router-dom";
+import { ArrowLeft2 } from "iconsax-react";
 import { toast } from "sonner";
 import { AuthLayout } from "@/components/auth-layout";
 import { Button } from "@/components/ui/button";
@@ -12,7 +13,7 @@ import { authApi } from "@/api/services";
 export function ForgotPasswordScreen() {
   const [sent, setSent] = useState(false);
   const form = useForm<{ email: string }>({ resolver: zodResolver(z.object({ email: z.string().email() })), defaultValues: { email: "" }, mode: "onChange" });
-  return <AuthLayout><div className="auth-copy"><p className="eyebrow">Account recovery</p><h1>{sent ? "Check your inbox." : "Reset your password."}</h1><p>{sent ? "If that account exists, we sent a secure reset link." : "Enter the email attached to your employee account."}</p></div>{sent ? <Button variant="secondary" onClick={() => setSent(false)}>Use another email</Button> : <form className="grid gap-5" onSubmit={form.handleSubmit(async ({ email }) => { await authApi.forgotPassword(email); setSent(true); })}><Field label="Work email" error={form.formState.errors.email?.message}><Input type="email" autoComplete="email" {...form.register("email")} /></Field><Button disabled={!form.formState.isValid || form.formState.isSubmitting}>Send reset link</Button></form>}<Link className="text-center text-sm font-semibold text-brand" to="/login">Back to sign in</Link></AuthLayout>;
+  return <AuthLayout><Link className="auth-back" to="/login"><ArrowLeft2 color="currentColor" size="18" />Go back</Link><div className="auth-copy"><h1>{sent ? "Check your inbox." : "Reset your password."}</h1><p>{sent ? "If that account exists, we sent a secure reset link." : "Enter the email attached to your employee account."}</p></div>{sent ? <Button variant="secondary" onClick={() => setSent(false)}>Use another email</Button> : <form className="grid gap-5" onSubmit={form.handleSubmit(async ({ email }) => { await authApi.forgotPassword(email); setSent(true); })}><Field label="Enter your email" error={form.formState.errors.email?.message}><Input type="email" autoComplete="email" inputMode="email" {...form.register("email")} /></Field><Button disabled={!form.formState.isValid || form.formState.isSubmitting}>Send reset link</Button></form>}<Link className="text-center text-sm font-semibold text-brand" to="/login">Back to sign in</Link></AuthLayout>;
 }
 
 export function ResetPasswordScreen() {

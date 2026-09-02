@@ -15,7 +15,7 @@ export default defineConfig({
       // Activate each deployment immediately so an older service worker cannot
       // keep serving an index that points at chunks Vercel has already replaced.
       registerType: "autoUpdate",
-      includeAssets: ["assets/figma/wellstaq-logo.png"],
+      includeAssets: ["assets/figma/wellstaq-logo.png", "icons/favicon.svg"],
       manifest: {
         name: "Wellstaq Employee",
         short_name: "Wellstaq",
@@ -27,8 +27,7 @@ export default defineConfig({
         scope: "/",
         orientation: "portrait-primary",
         icons: [
-          { src: "/icons/icon.svg", sizes: "any", type: "image/svg+xml", purpose: "any" },
-          { src: "/icons/icon-maskable.svg", sizes: "any", type: "image/svg+xml", purpose: "maskable" }
+          { src: "/icons/favicon.svg", sizes: "any", type: "image/svg+xml", purpose: "any maskable" }
         ]
       },
       workbox: {

@@ -1,22 +1,16 @@
 import { useState } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { useAuth, hasPermission } from "@/auth/auth-context";
 import { employeeApi } from "@/api/services";
 import { ApiError } from "@/api/errors";
-import { Screen, QueryState, Pagination, FormError } from "@/components/screen";
+import { Screen, QueryState, FormError } from "@/components/screen";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Field, Input } from "@/components/ui/field";
 import { EmptyState } from "@/components/ui/states";
 import { formatDate, titleCase } from "@/lib/utils";
-
-export function ChallengesScreen() {
-  const { user } = useAuth(); const [offset,setOffset] = useState(0);
-  const query = useQuery({ queryKey:["challenges",user?.organizationId,offset], queryFn:()=>employeeApi.challengePage(user!.organizationId,offset) });
-  return <Screen title="Challenges"><p className="eyebrow">Small steps. Shared wins.</p><h1 className="page-title">Find your next<br />good habit.</h1>{hasPermission(user,"challenge.create",user?.branchId) && <Link className="text-link" to="/challenges/new">Create a challenge +</Link>}<QueryState query={query}>{query.data?.items.length ? query.data.items.map((c)=><Link className="card-link" key={c.id} to={`/challenges/${c.id}`}><Card className="content-card">{c.image_url && <img className="h-40 w-full rounded-2xl object-cover" src={c.image_url} alt=""/>}<span className="chip">{titleCase(c.status)}</span><h2>{c.name}</h2><p>{c.description}</p><small>{c.participant_count} participants · {c.end_date ? `Until ${formatDate(c.end_date)}` : "Open challenge"}</small><span className="text-link">Explore challenge →</span></Card></Link>) : <EmptyState title="Your next challenge is on its way" body="Challenges from your organization will appear here."/>}<Pagination offset={offset} total={query.data?.total??0} onChange={setOffset}/></QueryState></Screen>;
-}
 
 export function ChallengeDetailScreen() {
   const { challengeId="" } = useParams(); const { user } = useAuth(); const client = useQueryClient(); const [value,setValue] = useState("");

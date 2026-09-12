@@ -25,6 +25,7 @@ export function AppShell() {
     <div className="mobile-shell">
       {!online && <OfflineBanner />}
       <main ref={contentRef} className="shell-content"><Outlet /></main>
+      <div className="shell-scrim" aria-hidden="true" />
       <BottomNav />
     </div>
   );

@@ -11,6 +11,7 @@ const ResetPasswordScreen = lazy(() => import("@/screens/auth/recovery").then((m
 const InviteScreen = lazy(() => import("@/screens/auth/invite").then((module) => ({ default: module.InviteScreen })));
 const HomeScreen = lazy(() => import("@/screens/app/home").then((module) => ({ default: module.HomeScreen })));
 const ActivityScreen = lazy(() => import("@/screens/app/activity").then((module) => ({ default: module.ActivityScreen })));
+const CheckInScreen = lazy(() => import("@/screens/app/activity").then((module) => ({ default: module.CheckInScreen })));
 const ExploreScreen = lazy(() => import("@/screens/app/explore").then((module) => ({ default: module.ExploreScreen })));
 const EventsScreen = lazy(() => import("@/screens/app/events").then((module) => ({ default: module.EventsScreen })));
 const EventDetailScreen = lazy(() => import("@/screens/app/events").then((module) => ({ default: module.EventDetailScreen })));
@@ -26,14 +27,12 @@ const AssessmentsScreen = lazy(() => import("@/screens/app/wellbeing").then(m =>
 const PrioritiesScreen = lazy(() => import("@/screens/app/wellbeing").then(m => ({default:m.PrioritiesScreen})));
 const SurveyScreen = lazy(() => import("@/screens/app/wellbeing").then(m => ({default:m.SurveyScreen})));
 const HistoryScreen = lazy(() => import("@/screens/app/wellbeing").then(m => ({default:m.HistoryScreen})));
-const ChallengesScreen = lazy(() => import("@/screens/app/challenges").then(m => ({default:m.ChallengesScreen})));
 const ChallengeDetailScreen = lazy(() => import("@/screens/app/challenges").then(m => ({default:m.ChallengeDetailScreen})));
 const CreateChallengeScreen = lazy(() => import("@/screens/app/challenges").then(m => ({default:m.CreateChallengeScreen})));
 const CreateEventScreen = lazy(() => import("@/screens/app/events").then(m => ({default:m.CreateEventScreen})));
 const ComposeScreen = lazy(() => import("@/screens/app/community").then(m => ({default:m.ComposeScreen})));
 const PostDetailScreen = lazy(() => import("@/screens/app/community").then(m => ({default:m.PostDetailScreen})));
 const StoryScreen = lazy(() => import("@/screens/app/community").then(m => ({default:m.StoryScreen})));
-const ClubsScreen = lazy(() => import("@/screens/app/clubs").then(m => ({default:m.ClubsScreen})));
 const ClubDetailScreen = lazy(() => import("@/screens/app/clubs").then(m => ({default:m.ClubDetailScreen})));
 const ChatScreen = lazy(() => import("@/screens/app/clubs").then(m => ({default:m.ChatScreen})));
 const MovementScreen = lazy(() => import("@/screens/app/movement").then(m => ({default:m.MovementScreen})));
@@ -60,6 +59,7 @@ export function App() {
         </Route>
         <Route path="/events/:eventId" element={<EventDetailScreen />} />
         <Route path="/events/new" element={<CreateEventScreen />} />
+        <Route path="/checkin" element={<CheckInScreen />} />
         <Route path="/scores" element={<ScoresScreen />} />
         <Route path="/movement" element={<MovementScreen />} />
         <Route path="/leaderboard" element={<LeaderboardScreen />} />
@@ -67,14 +67,12 @@ export function App() {
         <Route path="/priorities" element={<PrioritiesScreen />} />
         <Route path="/survey" element={<SurveyScreen />} />
         <Route path="/history" element={<HistoryScreen />} />
-        <Route path="/challenges" element={<ChallengesScreen />} />
         <Route path="/challenges/new" element={<CreateChallengeScreen />} />
         <Route path="/challenges/:challengeId" element={<ChallengeDetailScreen />} />
         <Route path="/posts/new" element={<ComposeScreen />} />
         <Route path="/posts/:postId" element={<PostDetailScreen />} />
         <Route path="/stories/new" element={<ComposeScreen story />} />
         <Route path="/stories/:storyId" element={<StoryScreen />} />
-        <Route path="/clubs" element={<ClubsScreen />} />
         <Route path="/clubs/:clubId" element={<ClubDetailScreen />} />
         <Route path="/clubs/:clubId/chat" element={<ChatScreen />} />
         <Route path="/notifications" element={<NotificationsScreen />} />

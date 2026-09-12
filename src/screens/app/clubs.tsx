@@ -10,11 +10,6 @@ import { Button } from '@/components/ui/button';
 import { Field, Input } from '@/components/ui/field';
 import { EmptyState } from '@/components/ui/states';
 
-export function ClubsScreen() {
-  const {user}=useAuth();const [offset,setOffset]=useState(0);const query=useQuery({queryKey:['clubs',user?.organizationId,offset],queryFn:()=>employeeApi.clubPage(user!.organizationId,offset)});
-  return <Screen title="Clubs"><p className="eyebrow">Find your people</p><h1 className="page-title">Shared interests.<br/>New connections.</h1><QueryState query={query}>{query.data?.items.length?query.data.items.map((club)=><Link key={club.id} className="card-link" to={`/clubs/${club.id}`}><Card className="content-card">{club.image_url&&<img src={club.image_url} className="h-36 w-full rounded-2xl object-cover" alt=""/>}<span className="chip">{club.is_member?'Joined':club.category}</span><h2>{club.name}</h2><p>{club.description}</p><small>{club.member_count} members · {club.privacy}</small></Card></Link>):<EmptyState title="Your people are on their way" body="Clubs in your organization will appear here."/>}<Pagination offset={offset} total={query.data?.total??0} onChange={setOffset}/></QueryState></Screen>;
-}
-
 export function ClubDetailScreen() {
   const {clubId=''}=useParams();const {user}=useAuth();const client=useQueryClient();
   const query=useQuery({queryKey:['clubs',user?.organizationId,clubId],queryFn:()=>employeeApi.club(user!.organizationId,clubId)});

@@ -3,8 +3,12 @@ import { Button } from "./button";
 
 export function PageLoader() {
   return (
-    <div className="grid min-h-72 place-items-center" aria-live="polite">
-      <div className="wellstaq-spinner" aria-label="Loading" />
+    <div className="skeleton-loader" role="status" aria-live="polite" aria-label="Loading">
+      <div className="skeleton-block skeleton-title" />
+      <div className="skeleton-block skeleton-line" />
+      <div className="skeleton-block skeleton-line short" />
+      <div className="skeleton-block skeleton-card" />
+      <div className="skeleton-block skeleton-card" />
     </div>
   );
 }

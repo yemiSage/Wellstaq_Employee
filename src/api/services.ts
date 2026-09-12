@@ -93,6 +93,7 @@ export const employeeApi = {
       unreadCount: Number(unreadData.unread_count ?? unreadData.count ?? 0),
     };
   },
+  streak: () => apiTransport.request<Record<string, unknown>>("/engagement/checkins/streak"),
   events: (orgId: string) => apiTransport.request(`/organizations/${orgId}/events`).then(mapEvents),
   joinEvent: (orgId: string, eventId: string, userId: string) =>
     apiTransport.request(`/organizations/${orgId}/events/${eventId}/participants`, { method: "POST", body: { user_id: userId, is_invite: false } }),

@@ -33,15 +33,20 @@ export function AuthLayout({
     if (sceneRef.current) sceneRef.current.scrollTop = 0;
   }, [location.pathname]);
 
+  // Only screens with no back button (so the row's left slot is free) get the
+  // logo docked inline with close/progress; screens with a back button keep
+  // it on its own line below, since the two would otherwise collide.
+  const logoInRow = !hideIntro && !onBack;
+
   return (
     <main ref={sceneRef} className="auth-scene">
       <div className="auth-art" aria-hidden="true" />
       <div className="auth-glow auth-glow-one" aria-hidden="true" />
       <div className="auth-glow auth-glow-two" aria-hidden="true" />
-      {(onBack || onClose || progress) && (
+      {(onBack || onClose || progress || logoInRow) && (
         <div className="auth-top">
           <div className="auth-nav-row">
-            {onBack ? <button type="button" className="auth-nav-btn" onClick={onBack} aria-label="Back"><ArrowLeft2 size="18" color="currentColor" /></button> : <span className="auth-nav-spacer" aria-hidden="true" />}
+            {onBack ? <button type="button" className="auth-nav-btn" onClick={onBack} aria-label="Back"><ArrowLeft2 size="18" color="currentColor" /></button> : logoInRow ? <BrandLogo className="auth-brand-inline" /> : <span className="auth-nav-spacer" aria-hidden="true" />}
             {onClose ? <button type="button" className="auth-nav-btn" onClick={onClose} aria-label="Close"><CloseCircle size="18" color="currentColor" /></button> : <span className="auth-nav-spacer" aria-hidden="true" />}
           </div>
           {progress && (
@@ -55,10 +60,10 @@ export function AuthLayout({
           )}
         </div>
       )}
-      {!hideIntro && <BrandLogo className="auth-brand" />}
+      {!logoInRow && !hideIntro && <BrandLogo className="auth-brand" />}
       {!hideIntro && (
         <motion.div
-          className="auth-scene-copy"
+          className={`auth-scene-copy${logoInRow ? " auth-scene-copy-tight" : ""}`}
           aria-hidden="true"
           initial={reducedMotion ? false : { opacity: 0, y: 14 }}
           animate={{ opacity: 1, y: 0 }}

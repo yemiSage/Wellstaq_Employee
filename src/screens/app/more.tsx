@@ -1,4 +1,4 @@
-import { ArrowRight2, Headphone, Lock1, Logout, Notification, Profile, SecuritySafe, Setting2 } from "iconsax-react";
+import { Activity, ArrowRight2, Cup, Headphone, Lock1, Logout, Notification, Profile, SecuritySafe, Setting2 } from "iconsax-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/auth/auth-context";
 import { initials } from "@/lib/utils";
@@ -9,8 +9,8 @@ const groups = [
   {
     title: "Your activity",
     rows: [
-      { to: "/movement", icon: Profile, title: "Movement", body: "Log steps and daily activity" },
-      { to: "/leaderboard", icon: Profile, title: "Leaderboard", body: "Celebrate your shared progress" },
+      { to: "/movement", icon: Activity, title: "Movement", body: "Log steps and daily activity" },
+      { to: "/leaderboard", icon: Cup, title: "Leaderboard", body: "Celebrate your shared progress" },
     ],
   },
   {
@@ -51,7 +51,6 @@ export function MoreScreen() {
         </div>
       </div>
     ))}
-    <Button variant="secondary" className="text-danger" onClick={() => void signOut()}><Logout color="currentColor" size="20" /> Sign out</Button>
-    <p className="text-center text-xs text-muted">Wellstaq Employee · PWA preview</p>
+    <Button variant="ghost" className="text-danger" onClick={() => void signOut()}><Logout color="currentColor" size="20" /> Sign out</Button>
   </div></div>;
 }

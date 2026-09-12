@@ -3,7 +3,7 @@
 :root {
   --surface: #fff;
   --radius-control: 16px;
-  --text-h1: 36px; --leading-h1: 44px;
+  --text-h1: 28px; --leading-h1: 34px;
   --text-h2: 24px; --leading-h2: 30px;
   --text-h3: 20px; --leading-h3: 26px;
   --text-h4: 18px; --leading-h4: 24px;
@@ -31,6 +31,13 @@ h1, h2, h3 { text-wrap: balance; }
 .eyebrow { color: #a54300; font-size: var(--text-caption); line-height: var(--leading-caption); letter-spacing: .1em; }
 .section-heading h2, .action-list > h2 { font-family: Inter, sans-serif; font-size: var(--text-h3); line-height: var(--leading-h3); font-weight: 500; letter-spacing: -.045em; }
 .rounded-3xl, .action-row, .event-list-card, .settings-list { border-color: rgb(232 230 225 / 45%); border-radius: 25px; }
+.challenge-card { border-radius: 16px; }
+/* Home-page cards specifically: 20px padding, 16px corner radius, per request.
+   Scoped to .home-page since .content-card and .event-list-card are shared
+   with other screens that weren't asked to change. */
+.home-page .content-card { padding: 20px; border-radius: 16px; }
+.home-page .event-list-card { border-radius: 16px; }
+.home-page .event-list-card > span { padding: 20px; }
 .inline-flex.bg-brand { min-height: 52px; background: linear-gradient(180deg, #ee780e, #dd5b00); }
 .inline-flex.border { min-height: 48px; }
 .btn-loading { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; gap: 5px; }
@@ -50,8 +57,11 @@ input, .select, .textarea { border-radius: var(--radius-control); font-size: 16p
 .auth-progress-fill { display: block; height: 100%; border-radius: inherit; background: #fff; transition: width .3s ease-out; }
 .auth-scene::after { content: ''; position: absolute; inset: 0; z-index: -1; background: linear-gradient(180deg, rgb(245 248 240 / 10%), rgb(245 248 240 / 0%) 28%, rgb(248 239 222 / 56%) 58%, #f3eee4 100%); }
 .auth-brand { height: 42px; align-self: flex-start; margin-top: max(28px, env(safe-area-inset-top)); margin-left: 5px; }
-.auth-scene-copy { display: grid; z-index: 1; margin: clamp(25px, 5dvh, 54px) 0 24px; align-self: flex-start; padding-inline: 7px; font-family: "Bricolage Grotesque", sans-serif; font-weight: 500; font-size: var(--text-h1); line-height: var(--leading-h1); letter-spacing: -.065em; color: #243c2c; }
-.auth-scene-copy span:last-child { color: #8e3c08; }
+.auth-brand-inline { height: 30px; width: auto; }
+.auth-scene-copy-tight { margin-top: 20px !important; }
+.auth-scene-copy { display: grid; z-index: 1; margin: clamp(25px, 5dvh, 54px) 0 24px; align-self: flex-start; padding-inline: 7px; font-family: "Bricolage Grotesque", sans-serif; font-weight: 500; font-size: clamp(40px, 12vw, 58px); line-height: .98; letter-spacing: -.065em; color: #243c2c; }
+.auth-scene-copy span:first-child { color: #fffdf3; text-shadow: 0 2px 10px rgb(17 44 20 / 15%); }
+.auth-scene-copy span:last-child { color: #fff0d7; text-shadow: 0 2px 10px rgb(17 44 20 / 15%); }
 .auth-glow { z-index: -2; filter: blur(50px); opacity: .3; animation: ambient-drift 12s ease-in-out infinite alternate; pointer-events: none; }
 .auth-glow-one { background: #ffb35a; width: 300px; height: 300px; top: 32%; left: -28%; }
 .auth-glow-two { background: #84d195; top: 5%; right: -28%; animation-delay: -6s; }
@@ -87,7 +97,7 @@ input, .select, .textarea { border-radius: var(--radius-control); font-size: 16p
 .bottom-nav-link.active { color: #a54300; }
 .shell-content { padding-bottom: calc(106px + env(safe-area-inset-bottom)); }
 @media (min-width: 769px) { .shell-content { padding-bottom: calc(130px + env(safe-area-inset-bottom)); } }
-.home-page { background: radial-gradient(ellipse 75% 35% at 68% 26%, #f9e5c6 0%, transparent 90%); }
+.home-page { background: radial-gradient(ellipse 75% 35% at 68% 26%, rgb(249 229 198 / 55%) 0%, transparent 90%); }
 .home-header { position: sticky; z-index: 20; top: 0; display: flex; align-items: center; justify-content: space-between; padding: calc(24px + env(safe-area-inset-top)) 16px 22px; background: transparent; transition: background .25s ease; }
 .home-header.is-scrolled { background: linear-gradient(rgb(255 255 255 / 85%), rgb(255 255 255 / 55%)); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); }
 [data-theme=dark] .home-header.is-scrolled { background: linear-gradient(rgb(32 37 31 / 85%), rgb(32 37 31 / 55%)); }
@@ -98,13 +108,13 @@ input, .select, .textarea { border-radius: var(--radius-control); font-size: 16p
 .home-summary strong { font-size: 34px; letter-spacing: -.05em; font-weight: 500; }
 .home-summary span { font-size: var(--text-body2); line-height: var(--leading-body2); color: #686761; }
 .home-summary a { margin-left: auto; display: grid; place-items: center; width: 46px; height: 46px; border-radius: 50%; background: #fff; }
-.wellbeing-ribbon { color: #202020; background: rgb(255 255 255 / 88%); border: 1px solid white; border-radius: 26px; margin-inline: 16px; padding: 24px; }
+.wellbeing-ribbon { color: #202020; background: rgb(255 255 255 / 88%); border: 1px solid white; border-radius: 16px; margin-inline: 16px; padding: 20px; }
 .wellbeing-ribbon::after { background: #eda75b; opacity: .2; filter: blur(25px); }
 .ribbon-copy strong { display: block; font-family: "Bricolage Grotesque", sans-serif; font-weight: 500; font-size: var(--text-h1); line-height: var(--leading-h1); letter-spacing: -.055em; }
 .ribbon-copy .eyebrow { color: #8f470c; text-transform: none; }
 .ribbon-copy p { color: #686761; font-size: var(--text-body2); line-height: var(--leading-body2); }
 .wellbeing-meter { height: 7px; background: #f1eee7; }
-.ribbon-mood { width: 80px; height: 80px; top: 35px; right: 15px; }
+.ribbon-mood { width: clamp(56px, 18vw, 80px); height: clamp(56px, 18vw, 80px); top: 30px; right: 15px; }
 .wellbeing-orb { border-radius: 50%; border: 1px solid rgb(255 255 255 / 60%); background: linear-gradient(135deg, #ffd5a3 0%, #ee8c32 55%, #74a859 100%); animation: orb-breathe 4.5s ease-in-out infinite; }
 @keyframes orb-breathe { 0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgb(238 140 50 / 35%); } 50% { transform: scale(1.06); box-shadow: 0 0 22px 9px rgb(238 140 50 / 18%); } }
 [data-sonner-toaster] button { min-height: 0; }
@@ -159,7 +169,8 @@ input, .select, .textarea { border-radius: var(--radius-control); font-size: 16p
 .trend-bars > div { display: grid; flex: 1; min-width: 24px; gap: 8px; text-align: center; }
 .trend-bars > div > span { border-radius: 8px 8px 3px 3px; background: linear-gradient(#f6b064,#ea6a05); }
 .welcome-scene { display: flex; flex-direction: column; isolation: isolate; padding: max(32px, env(safe-area-inset-top)) 28px max(28px, env(safe-area-inset-bottom)); overflow: hidden !important; background: #c98a5e !important; }
-.welcome-art { position: absolute; z-index: -1; inset: 0; background: url('/assets/welcome-hero.png') center 22% / cover; animation: welcome-breathe 12s ease-in-out infinite alternate; transition: filter .32s ease-out, transform .32s ease-out; }
+.welcome-art { position: absolute; z-index: -1; inset: 0; background: url('/assets/welcome-hero.png') center 22% / cover; animation: welcome-breathe 12s ease-in-out infinite alternate; transition: filter .32s ease-out, transform .32s ease-out; -webkit-mask-image: linear-gradient(to bottom, rgb(0 0 0 / 45%) 0%, rgb(0 0 0 / 45%) 20%, #000 36%); mask-image: linear-gradient(to bottom, rgb(0 0 0 / 45%) 0%, rgb(0 0 0 / 45%) 20%, #000 36%); }
+.welcome-heading-back { position: relative; z-index: -2; margin: 0; text-align: center; color: #fff0d7; font: 500 clamp(40px,12vw,58px)/.98 'Bricolage Grotesque',sans-serif; letter-spacing: -.065em; }
 .welcome-art.is-leaving { animation-play-state: paused; filter: blur(22px); transform: scale(1.08); }
 .welcome-scene.is-leaving .welcome-logo, .welcome-scene.is-leaving .welcome-heading, .welcome-scene.is-leaving .welcome-actions > p { transition: opacity .28s ease-out; opacity: 0; }
 .welcome-scrim { position: absolute; z-index: -1; inset: auto 0 0 0; height: 38%; -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px); -webkit-mask-image: linear-gradient(to bottom, transparent, #000 42%); mask-image: linear-gradient(to bottom, transparent, #000 42%); background: linear-gradient(to bottom, rgb(32 20 10 / 0%) 0%, rgb(32 20 10 / 30%) 45%, rgb(32 20 10 / 48%) 100%); }

@@ -15,7 +15,7 @@ export default defineConfig(({ mode }) => ({
       // Activate each deployment immediately so an older service worker cannot
       // keep serving an index that points at chunks Vercel has already replaced.
       registerType: "autoUpdate",
-      includeAssets: ["assets/figma/wellstaq-logo.png", "icons/favicon.svg"],
+      includeAssets: ["assets/figma/wellstaq-logo.png", "icons/favicon.svg", "icons/icon.svg", "icons/icon-maskable.svg"],
       manifest: {
         name: "Wellstaq Employee",
         short_name: "Wellstaq",
@@ -26,8 +26,14 @@ export default defineConfig(({ mode }) => ({
         start_url: "/",
         scope: "/",
         orientation: "portrait-primary",
+        // icon.svg/icon-maskable.svg are the actual full-size (512x512) app
+        // icons — icon-maskable.svg alone has the safe-zone padding Android's
+        // shaped-icon masks need. favicon.svg is a small 52px browser-tab
+        // glyph with a plain white square background and was never designed
+        // for a maskable crop, so it must not claim that purpose.
         icons: [
-          { src: "/icons/favicon.svg", sizes: "any", type: "image/svg+xml", purpose: "any maskable" }
+          { src: "/icons/icon.svg", sizes: "512x512", type: "image/svg+xml", purpose: "any" },
+          { src: "/icons/icon-maskable.svg", sizes: "512x512", type: "image/svg+xml", purpose: "maskable" }
         ]
       },
       workbox: {

@@ -25,7 +25,7 @@ npm install
 npm run dev
 ```
 
-The development server opens on `http://localhost:4173`. Environment variables are validated at startup. OAuth buttons remain hidden unless `VITE_ENABLE_OAUTH=true` and the matching client ID is present.
+The development server opens on `http://127.0.0.1:4173`. Environment variables are validated at startup. Development requests use a same-origin `/api` proxy to the configured Railway API. Password, invite OTP and two-factor authentication are implemented; OAuth provider UI is not enabled.
 
 ## API contract
 
@@ -50,7 +50,7 @@ npm run build
 npm run test:e2e
 ```
 
-Playwright uses the production preview and mocks the API at the browser boundary. It covers sign-in, all five tabs, install manifest presence, and a critical-impact axe scan. Before a release, run the manual live checks in `docs/LIVE_SMOKE_TEST.md` with a non-production account.
+Playwright uses a production preview on port 4174 and mocks the API at the browser boundary. Run `npx playwright install chromium` once before the browser suite. Tests cover sign-in, all five tabs, direct reloads of 23 detail routes, invite onboarding, recovery, RSVP, challenge progress, preferences, support, surveys, mobile overflow, and serious/critical axe checks. Before release, run the manual live checks in `docs/LIVE_SMOKE_TEST.md` with a non-production account.
 
 ## PWA and native packaging
 
@@ -74,11 +74,13 @@ Build the static PWA and publish the `dist/` directory with any HTTPS-capable st
 | Variable | Required | Purpose |
 | --- | --- | --- |
 | `VITE_API_BASE_URL` | Yes | Wellstaq API origin. |
-| `VITE_ENABLE_OAUTH` | No | Set to `true` only when OAuth is configured. |
-| `VITE_GOOGLE_CLIENT_ID` | With Google OAuth | Existing-user Google sign-in client ID. |
-| `VITE_APPLE_CLIENT_ID` | With Apple OAuth | Existing-user Apple sign-in client ID. |
+| `VITE_ENABLE_OAUTH` | No | Reserved for future provider integration; leave false. |
 
 The API must permit the deployed origin through credentialed CORS and allow the `Authorization`, `Content-Type`, and `X-Request-ID` headers. Keep the API origin HTTPS in production: service-worker installation, browser credential protections, and installability depend on it.
+
+Keep `index.html`'s `connect-src` policy aligned with the API and signed-upload storage origin. The current policy permits Railway and AWS S3; a different storage provider needs its exact origin added. Serve `Content-Security-Policy: frame-ancestors 'none'` as an HTTP response header (that directive cannot be enforced by an HTML meta tag).
+
+The screen/endpoint map and implementation notes are in `docs/IMPLEMENTATION_PLAN.md`; ongoing design rules are in `AGENTS.md`. This is an employee application, not an organization administration dashboard.
 
 The included GitHub Actions workflow runs contract, lint, type, unit/integration, build, and mobile-browser checks on pushes and pull requests. Before connecting a production host, complete the live smoke checklist and verify the production refresh-token behavior with a non-production employee account.
 

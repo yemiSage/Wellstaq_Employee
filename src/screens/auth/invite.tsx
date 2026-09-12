@@ -1,48 +1,40 @@
 import { useState } from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
-import { toast } from "sonner";
-import { ArrowLeft2 } from "iconsax-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { useMutation } from "@tanstack/react-query";
 import { AuthLayout } from "@/components/auth-layout";
 import { Button } from "@/components/ui/button";
 import { Field, Input } from "@/components/ui/field";
+import { FormError } from "@/components/screen";
 import { authApi } from "@/api/services";
 import { useAuth } from "@/auth/auth-context";
-import type { TokenPair } from "@/auth/auth-vault";
-import type { WellbeingDimension, WellbeingLevel } from "@/api/domain";
 import { cn, titleCase } from "@/lib/utils";
+import type { components } from "@/api/generated/schema";
 
-const moods: { level: WellbeingLevel; label: string; image: string }[] = [
-  { level: "good", label: "Great", image: "mood-happy.png" },
-  { level: "bad", label: "Low", image: "mood-tired.png" },
-  { level: "stressed", label: "Stressed", image: "mood-stressed.png" },
-  { level: "tired", label: "Tired", image: "mood-infuriated.png" },
+type Entry = components["schemas"]["BaselineDimensionSchema"];
+const dimensions: Entry["dimension"][] = ["mood", "energy", "stress", "work_life_balance"];
+const moods: { level: Entry["level"]; label: string; image: string }[] = [
+  { level: "amazed", label: "Great", image: "mood-amazed.png" }, { level: "excited", label: "Excited", image: "mood-excited.png" },
+  { level: "tired", label: "Tired", image: "mood-tired.png" }, { level: "stressed", label: "Stressed", image: "mood-stressed.png" }, { level: "infuriated", label: "Frustrated", image: "mood-infuriated.png" },
 ];
-const dimensions: WellbeingDimension[] = ["mood", "stress", "energy", "work_life_balance"];
-const priorities = ["reduce_stress", "build_energy", "improve_balance", "save_better", "stay_active", "feel_connected"];
-type Details = { firstName: string; lastName: string; password: string; country: string; state: string };
+const priorities = ["reduce_stress", "build_energy", "improve_balance", "save_better", "stay_active", "feel_connected"] as const;
 
 export function InviteScreen() {
-  const [step, setStep] = useState(0);
-  const [inviteCode, setInviteCode] = useState("");
-  const [verificationToken, setVerificationToken] = useState("");
-  const [details, setDetails] = useState<Details | null>(null);
-  const [dimension, setDimension] = useState(0);
-  const [baseline, setBaseline] = useState<Record<WellbeingDimension, WellbeingLevel>>({ mood: "good", stress: "good", energy: "good", work_life_balance: "good" });
-  const [selectedPriorities, setSelectedPriorities] = useState<string[]>([]);
-  const { acceptTokens } = useAuth();
-  const codeForm = useForm<{ inviteCode: string }>({ resolver: zodResolver(z.object({ inviteCode: z.string().min(2) })), defaultValues: { inviteCode: "" }, mode: "onChange" });
-  const otpForm = useForm<{ code: string }>({ resolver: zodResolver(z.object({ code: z.string().length(6) })), defaultValues: { code: "" }, mode: "onChange" });
-  const detailsForm = useForm<Details>({ resolver: zodResolver(z.object({ firstName: z.string().min(1), lastName: z.string().min(1), password: z.string().min(8), country: z.string().min(2), state: z.string().min(1) })), defaultValues: { firstName: "", lastName: "", password: "", country: "Nigeria", state: "Lagos" }, mode: "onChange" });
-
-  if (step === 0) return <AuthLayout><Link className="auth-back" to="/login"><ArrowLeft2 color="currentColor" size="18" />Go back</Link><div className="auth-copy"><h1>Let’s find your workspace.</h1><p>Use the invite code shared by your People team.</p></div><form className="grid gap-5" onSubmit={codeForm.handleSubmit(async ({ inviteCode: value }) => { await authApi.requestInviteOtp(value); setInviteCode(value); setStep(1); })}><Field label="Invite code" error={codeForm.formState.errors.inviteCode?.message}><Input autoCapitalize="characters" {...codeForm.register("inviteCode")} /></Field><Button disabled={!codeForm.formState.isValid || codeForm.formState.isSubmitting}>Confirm code</Button></form></AuthLayout>;
-  if (step === 1) return <AuthLayout><div className="auth-copy"><p className="eyebrow">Verify invitation</p><h1>Check your email.</h1><p>Enter the 6-digit code we sent to the invited address.</p></div><form className="grid gap-5" onSubmit={otpForm.handleSubmit(async ({ code }) => { const response = await authApi.verifyInviteOtp(inviteCode, code); setVerificationToken(String(response.invite_verification_token ?? response.verification_token ?? "")); setStep(2); })}><Field label="Verification code" error={otpForm.formState.errors.code?.message}><Input className="otp-input" inputMode="numeric" maxLength={6} {...otpForm.register("code")} /></Field><Button disabled={!otpForm.formState.isValid || otpForm.formState.isSubmitting}>Verify invitation</Button></form></AuthLayout>;
-  if (step === 2) return <AuthLayout><div className="auth-copy"><p className="eyebrow">Your details</p><h1>Make it yours.</h1><p>This information keeps your account personal and secure.</p></div><form className="grid grid-cols-2 gap-4" onSubmit={detailsForm.handleSubmit((values) => { setDetails(values); setStep(3); })}><Field label="First name" error={detailsForm.formState.errors.firstName?.message}><Input autoComplete="given-name" {...detailsForm.register("firstName")} /></Field><Field label="Last name" error={detailsForm.formState.errors.lastName?.message}><Input autoComplete="family-name" {...detailsForm.register("lastName")} /></Field><div className="col-span-2"><Field label="Password" error={detailsForm.formState.errors.password?.message}><Input type="password" autoComplete="new-password" {...detailsForm.register("password")} /></Field></div><Field label="Country"><Input {...detailsForm.register("country")} /></Field><Field label="State"><Input {...detailsForm.register("state")} /></Field><Button className="col-span-2" disabled={!detailsForm.formState.isValid || detailsForm.formState.isSubmitting}>Continue to wellbeing</Button></form></AuthLayout>;
-  if (step === 3) {
-    const currentDimension = dimensions[dimension];
-    return <main className="onboarding-screen"><div className="onboarding-top"><p className="eyebrow">Baseline {dimension + 1} of 4</p><div className="step-track"><span style={{ width: `${((dimension + 1) / 4) * 100}%` }} /></div><h1>How is your {titleCase(currentDimension).toLowerCase()} lately?</h1><p>There’s no right answer. This is private and helps Wellstaq personalise your experience.</p></div><div className="mood-grid">{moods.map((mood) => <button key={mood.level} className={cn("mood-option", baseline[currentDimension] === mood.level && "selected")} onClick={() => setBaseline((value) => ({ ...value, [currentDimension]: mood.level }))}><img src={`/assets/figma/${mood.image}`} alt="" /><span>{mood.label}</span></button>)}</div><div className="sticky-action"><Button className="w-full" onClick={() => dimension < 3 ? setDimension(dimension + 1) : setStep(4)}>{dimension < 3 ? "Next check-in" : "Choose priorities"}</Button></div></main>;
-  }
-  return <main className="onboarding-screen"><div className="onboarding-top"><p className="eyebrow">Nearly there</p><h1>What would you like to improve first?</h1><p>Choose up to three. Your order becomes your personal wellbeing focus.</p></div><div className="priority-list">{priorities.map((priority) => { const rank = selectedPriorities.indexOf(priority); return <button key={priority} className={cn("priority-option", rank >= 0 && "selected")} onClick={() => setSelectedPriorities((value) => value.includes(priority) ? value.filter((item) => item !== priority) : value.length < 3 ? [...value, priority] : value)}><span>{titleCase(priority)}</span>{rank >= 0 && <strong>{rank + 1}</strong>}</button>; })}</div><div className="sticky-action"><Button className="w-full" disabled={!details || !verificationToken || selectedPriorities.length === 0} onClick={async () => { if (!details) return; const response = await authApi.registerInvite({ invite_verification_token: verificationToken, first_name: details.firstName, last_name: details.lastName, password: details.password, country: details.country, state: details.state, baseline: { entries: dimensions.map((item) => ({ dimension: item, level: baseline[item] })) }, priorities: selectedPriorities.map((priority, rank) => ({ priority, rank: rank + 1 })) }); const tokens = response as unknown as { access_token?: string; refresh_token?: string; tokens?: { access_token: string; refresh_token: string } }; const pair = (tokens.access_token && tokens.refresh_token ? { accessToken: tokens.access_token, refreshToken: tokens.refresh_token } : tokens.tokens ? { accessToken: tokens.tokens.access_token, refreshToken: tokens.tokens.refresh_token } : null) as TokenPair | null; if (pair) await acceptTokens(pair); else toast.success("Account created. Sign in to continue."); }}>Create my account</Button></div></main>;
+  const [params] = useSearchParams(); const navigate = useNavigate(); const { acceptTokens } = useAuth();
+  const [step, setStep] = useState(0); const [code, setCode] = useState(params.get("invite_code") ?? ""); const [otp, setOtp] = useState(""); const [token, setToken] = useState("");
+  const [details, setDetails] = useState({ first_name: "", last_name: "", password: "", country: "Nigeria", state: "" });
+  const [entries, setEntries] = useState<Entry[]>(dimensions.map((dimension) => ({ dimension, level: "amazed", reason: "work" })));
+  const [selected, setSelected] = useState<(typeof priorities)[number][]>([]);
+  const request = useMutation({ mutationFn: () => authApi.requestInviteOtp(code.trim()), onSuccess: () => setStep(1) });
+  const verify = useMutation({ mutationFn: async () => { const data = await authApi.verifyInviteOtp(code.trim(), otp); const value = data.invite_verification_token ?? data.verification_token; if (typeof value !== "string" || !value) throw new Error("The invitation could not be verified. Request a new code."); return value; }, onSuccess: (value) => { setToken(value); setStep(2); } });
+  const register = useMutation({ mutationFn: async () => { const data = await authApi.registerInvite({ ...details, invite_verification_token: token, baseline: { entries }, priorities: selected.map((priority, index) => ({ priority, rank: index + 1 })) }); if (typeof data.access_token === "string" && typeof data.refresh_token === "string") { await acceptTokens({ accessToken: data.access_token, refreshToken: data.refresh_token }); navigate("/home", { replace: true }); } else { navigate("/login", { replace: true }); } } });
+  const entryIndex = step - 3; const entry = entries[entryIndex];
+  const macroStage = step === 0 ? 0 : step === 1 ? 1 : step === 2 ? 2 : step >= 3 && step <= 6 ? 3 : 4;
+  const macroFraction = macroStage === 3 ? (entryIndex + 1) / 4 : 1;
+  return <AuthLayout hideIntro onBack={() => step ? setStep(step - 1) : navigate("/login")} progress={{ segments: 5, active: macroStage, fraction: macroFraction }}>
+    {step === 0 && <><div className="auth-copy"><h1>Your people.<br />Your workspace.</h1><p>Enter the invite code from your People team.</p></div><form className="grid gap-4" onSubmit={(e) => { e.preventDefault(); request.mutate(); }}><Field label="Invite code"><Input value={code} onChange={(e) => setCode(e.target.value)} required autoComplete="off" /></Field><FormError error={request.error} /><Button disabled={!code.trim()} loading={request.isPending}>Next</Button></form><Link className="auth-footer" to="/login">Already have an account? Sign in</Link></>}
+    {step === 1 && <><div className="auth-copy"><h1>Check your email.</h1><p>Enter the confirmation code sent to your invited email address.</p></div><form className="grid gap-4" onSubmit={(e) => { e.preventDefault(); verify.mutate(); }}><Field label="Confirmation code"><Input className="otp-input" value={otp} onChange={(e) => setOtp(e.target.value.replace(/\D/g, ""))} inputMode="numeric" autoComplete="one-time-code" maxLength={6} required /></Field><FormError error={verify.error ?? request.error} /><Button disabled={otp.length !== 6} loading={verify.isPending}>Next</Button></form><Button variant="ghost" loading={request.isPending} onClick={() => request.mutate()}>Send another code</Button></>}
+    {step === 2 && <><div className="auth-copy"><h1>Make it yours.</h1><p>A few details to create your account.</p></div><form className="grid grid-cols-2 gap-4" onSubmit={(e) => { e.preventDefault(); setStep(3); }}>{([['first_name','First name'],['last_name','Last name'],['country','Country'],['state','State']] as const).map(([key,label]) => <Field label={label} key={key}><Input value={details[key]} required minLength={key === 'country' ? 2 : 1} maxLength={100} onChange={(e) => setDetails({ ...details, [key]: e.target.value })} /></Field>)}<div className="col-span-2"><Field label="Password" hint="At least 8 characters"><Input type="password" autoComplete="new-password" minLength={8} required value={details.password} onChange={(e) => setDetails({ ...details, password: e.target.value })} /></Field></div><Button className="col-span-2">Next</Button></form></>}
+    {entry && <><div className="auth-copy"><p className="eyebrow">A moment for you · {entryIndex + 1} / 4</p><h1>How is your {titleCase(entry.dimension).toLowerCase()}?</h1><p>Choose what feels closest right now.</p></div><div className="mood-grid !mt-0">{moods.map((mood) => <button key={mood.level} className={cn("mood-option !min-h-24 !p-3", entry.level === mood.level && "selected")} aria-pressed={entry.level === mood.level} onClick={() => setEntries(entries.map((item, i) => i === entryIndex ? { ...item, level: mood.level } : item))}><img className="!size-12" src={`/assets/figma/${mood.image}`} alt="" />{mood.label}</button>)}</div><Field label="What is influencing this?"><select className="select" value={entry.reason} onChange={(e) => setEntries(entries.map((item, i) => i === entryIndex ? { ...item, reason: e.target.value as Entry['reason'] } : item))}>{['work','family','breakup','sleep','social','food','love','exams','others'].map((reason) => <option key={reason} value={reason}>{titleCase(reason)}</option>)}</select></Field><Button onClick={() => setStep(step + 1)}>Next</Button></>}
+    {step === 7 && <><div className="auth-copy"><p className="eyebrow">Your next chapter</p><h1>What matters to you?</h1><p>Choose up to three priorities, starting with your main focus.</p></div><div className="priority-list !mt-0">{priorities.map((priority) => <button key={priority} aria-pressed={selected.includes(priority)} className={cn("priority-option", selected.includes(priority) && "selected")} onClick={() => setSelected(selected.includes(priority) ? selected.filter((item) => item !== priority) : selected.length < 3 ? [...selected, priority] : selected)}><span>{titleCase(priority)}</span>{selected.includes(priority) && <strong>{selected.indexOf(priority) + 1}</strong>}</button>)}</div><FormError error={register.error} /><Button disabled={!selected.length} loading={register.isPending} onClick={() => register.mutate()}>Create my account</Button></>}
+  </AuthLayout>;
 }

@@ -1,7 +1,7 @@
 import { mkdir, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
 
-const baseUrl = process.env.WELLSTAQ_API_BASE_URL ?? "https://18-204-12-4.sslip.io";
+const baseUrl = process.env.WELLSTAQ_API_BASE_URL ?? "https://wellstaq-api-production.up.railway.app";
 const destination = resolve("openapi/openapi.json");
 const response = await fetch(`${baseUrl.replace(/\/$/, "")}/openapi.json`);
 

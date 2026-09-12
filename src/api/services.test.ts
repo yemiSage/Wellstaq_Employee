@@ -15,7 +15,7 @@ describe("employee feature adapters with MSW", () => {
     const result = await authApi.login("yemi@wellstaq.test", "wellstaq-demo");
     expect(result.tokens?.refreshToken).toBe("refresh");
     await expect(employeeApi.submitCheckin({ mood: "good", energy_level: "good", stress_level: "good" })).resolves.toBeTruthy();
-    await expect(employeeApi.joinEvent("org-1", "event-1")).resolves.toBeTruthy();
-    await expect(employeeApi.createSupportTicket({ subject: "Help", message: "Please help", category: "general" })).resolves.toBeTruthy();
+    await expect(employeeApi.joinEvent("org-1", "event-1", "user-1")).resolves.toBeTruthy();
+    await expect(employeeApi.createSupportTicket({ name: "Yemi Ade", email: "yemi@wellstaq.test", subject: "Help", message: "Please help with my account" })).resolves.toBeTruthy();
   });
 });

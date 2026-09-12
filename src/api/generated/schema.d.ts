@@ -570,23 +570,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/organizations/{org_id}/clubs": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** List all clubs in organization */
-        get: operations["list_clubs_route_organizations__org_id__clubs_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/organizations/{org_id}/stats": {
         parameters: {
             query?: never;
@@ -946,6 +929,23 @@ export interface paths {
          * @description Any member of the target branch can create a club there. A user who is not a member of the branch can still create one if they hold `club.create` — org-wide, or scoped to this branch. The creator automatically becomes the club leader and is added as the first member. category is required and must be one of: fitness, creativity, team_bonding, mental_health, nutrition.
          */
         post: operations["create_club_route_organizations__org_id__branches__branch_id__clubs_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/organizations/{org_id}/clubs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List all clubs in organization */
+        get: operations["list_clubs_route_organizations__org_id__clubs_get"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -1942,7 +1942,7 @@ export interface paths {
          *
          *     **metric_type** — freeform label describing what's being measured, e.g. `steps`, `minutes_active`, `workshop_attendance`, `water_intake_liters`. Not a fixed enum — pick a consistent label per challenge type, since the frontend/mobile client uses this to decide how to collect and submit progress.
          *
-         *     **status** is not settable here — every new challenge starts as `draft` and is activated separately.
+         *     **status** is not settable here — every new challenge starts as `upcoming` and is activated by the lifecycle worker when its start date arrives.
          *
          *     **wellbeing_challenge_id** — optional link to a global challenge category/theme (e.g. "Fitness", "Mental Health") for grouping and filtering; leave null for an uncategorized challenge.
          */
@@ -3599,6 +3599,15 @@ export interface components {
             /** Created By */
             created_by: string | null;
         };
+        /** BranchRoleInfo */
+        BranchRoleInfo: {
+            /** Branch Id */
+            branch_id: string;
+            /** Role Id */
+            role_id: string;
+            /** Role Name */
+            role_name: string;
+        };
         /** BranchStatsResponse */
         BranchStatsResponse: {
             /** Total Users */
@@ -5037,15 +5046,7 @@ export interface components {
             /** Wellbeing Challenge Id */
             wellbeing_challenge_id: string;
         };
-        /**
-         * OrgOwnerRegisterRequest
-         * @description Step 3 — self-serve org-owner signup.
-         *
-         *     email_verification_token comes from /auth/signup/otp/verify and
-         *     proves the email was OTP-verified. The email itself is recovered
-         *     server-side from the token — it is NOT re-supplied here, preventing
-         *     substitution attacks.
-         */
+        /** OrgOwnerRegisterRequest */
         OrgOwnerRegisterRequest: {
             /** Email Verification Token */
             email_verification_token: string;
@@ -5126,34 +5127,6 @@ export interface components {
             /** Points */
             points: components["schemas"]["OrgWideKPIPoint"][];
         };
-        /** OrganizationClubInfo */
-        OrganizationClubInfo: {
-            /** Id */
-            id: string;
-            /** Name */
-            name: string;
-            /** Description */
-            description: string | null;
-            /** Privacy */
-            privacy: string;
-            /** Category */
-            category: string;
-            /** Branch Id */
-            branch_id: string | null;
-            /** Member Count */
-            member_count: number;
-        };
-        /** OrganizationClubsListResponse */
-        OrganizationClubsListResponse: {
-            /** Items */
-            items: components["schemas"]["OrganizationClubInfo"][];
-            /** Total */
-            total: number;
-            /** Offset */
-            offset: number;
-            /** Limit */
-            limit: number;
-        };
         /**
          * OrganizationMemberInfo
          * @description Allow-list — deliberately excludes hashed_password and other
@@ -5180,6 +5153,12 @@ export interface components {
             department_id?: string | null;
             /** Role Name */
             role_name?: string | null;
+            /** Organization Role Id */
+            organization_role_id?: string | null;
+            /** Organization Role Name */
+            organization_role_name?: string | null;
+            /** Branch Roles */
+            branch_roles?: components["schemas"]["BranchRoleInfo"][];
             /**
              * Public Profile
              * @default false
@@ -7576,41 +7555,6 @@ export interface operations {
             };
         };
     };
-    list_clubs_route_organizations__org_id__clubs_get: {
-        parameters: {
-            query?: {
-                offset?: number;
-                limit?: number;
-                privacy?: string | null;
-            };
-            header?: never;
-            path: {
-                org_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ClubListResponse"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
     org_stats_route_organizations__org_id__stats_get: {
         parameters: {
             query?: {
@@ -8427,6 +8371,41 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ClubResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_clubs_route_organizations__org_id__clubs_get: {
+        parameters: {
+            query?: {
+                offset?: number;
+                limit?: number;
+                privacy?: string | null;
+            };
+            header?: never;
+            path: {
+                org_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ClubListResponse"];
                 };
             };
             /** @description Validation Error */

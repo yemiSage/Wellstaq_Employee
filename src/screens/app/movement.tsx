@@ -1,0 +1,27 @@
+import { useState } from 'react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { toast } from 'sonner';
+import { useAuth } from '@/auth/auth-context';
+import { employeeApi } from '@/api/services';
+import { Screen, QueryState, FormError, Pagination } from '@/components/screen';
+import { Card } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Field, Input } from '@/components/ui/field';
+import { EmptyState } from '@/components/ui/states';
+import { titleCase, formatDate } from '@/lib/utils';
+
+const metrics=[['steps','Steps'],['distance','Distance'],['run','Run'],['7min_workout','7-minute workout'],['calories','Calories'],['manual','Other activity']];
+export function MovementScreen(){
+  const {user}=useAuth();const client=useQueryClient();const [metric,setMetric]=useState('steps');const [value,setValue]=useState('');const [unit,setUnit]=useState('');const [offset,setOffset]=useState(0);
+  const trend=useQuery({queryKey:['movement-trend',user?.id,metric],queryFn:()=>employeeApi.metricTrend(user!.organizationId,metric)});
+  const history=useQuery({queryKey:['movement',user?.id,offset],queryFn:()=>employeeApi.personalActivity(user!.organizationId,offset)});
+  const save=useMutation({mutationFn:()=>employeeApi.logActivity(user!.organizationId,{metric_type:metric,value:Number(value),unit:unit||null,source:'manual'}),onSuccess:()=>{setValue('');void client.invalidateQueries({queryKey:['movement']});void client.invalidateQueries({queryKey:['movement-trend']});void client.invalidateQueries({queryKey:['challenge-progress']});void client.invalidateQueries({queryKey:['leaderboard']});toast.success('Activity saved. Matching challenges have been updated.');}});
+  const max=Math.max(1,...(trend.data?.points.map(p=>Number(p.value))??[]));
+  return <Screen title="Movement"><p className="eyebrow">A little more active</p><h1 className="page-title">Every move counts.</h1><form className="list-stack" onSubmit={(e)=>{e.preventDefault();save.mutate();}}><Field label="Activity"><select className="select" value={metric} onChange={(e)=>{setMetric(e.target.value);setUnit('');}}>{metrics.map(([id,label])=><option key={id} value={id}>{label}</option>)}</select></Field><Field label="Today’s amount" hint="Saving replaces today’s amount for this activity."><Input type="number" min="0" step="any" required value={value} onChange={(e)=>setValue(e.target.value)}/></Field>{metric!=='steps'&&<Field label="Unit" hint="For example km, mins, or reps"><Input value={unit} maxLength={20} onChange={(e)=>setUnit(e.target.value)}/></Field>}<FormError error={save.error}/><Button loading={save.isPending}>Save activity</Button></form><h2 className="page-title !text-xl">Your recent rhythm</h2><QueryState query={trend}>{trend.data?.points.length?<Card className="content-card"><div className="trend-bars" aria-label={`${titleCase(metric)} over the last 14 periods`}>{trend.data.points.map(point=><div key={point.period}><span style={{height:`${Math.max(3,Number(point.value)/max*100)}px`}}/><small>{point.value}</small><small>{new Date(`${point.period}T12:00:00`).getDate()}</small></div>)}</div></Card>:<p className="empty-note">Log your movement to start seeing a pattern.</p>}</QueryState><h2 className="page-title !text-xl">Your activity</h2><QueryState query={history}>{history.data?.items.map(item=><Card className="content-card" key={item.id}><h3>{titleCase(item.activity_type)}</h3><small>{formatDate(item.created_at)}</small></Card>)}<Pagination offset={offset} total={history.data?.total??0} onChange={setOffset}/></QueryState></Screen>;
+}
+
+export function LeaderboardScreen(){
+  const {user}=useAuth();const [metric,setMetric]=useState('steps');const [scope,setScope]=useState<'org'|'branch'>('branch');const [period,setPeriod]=useState('weekly');
+  const query=useQuery({queryKey:['leaderboard',user?.organizationId,metric,scope,period],queryFn:()=>employeeApi.leaderboard(user!.organizationId,metric,scope,period)});
+  return <Screen title="Leaderboard"><p className="eyebrow">Cheer each other on</p><h1 className="page-title">A shared sense<br/>of progress.</h1><div className="segmented"><button className={scope==='branch'?'active':''} onClick={()=>setScope('branch')}>My branch</button><button className={scope==='org'?'active':''} onClick={()=>setScope('org')}>Organization</button></div><div className="grid grid-cols-2 gap-3"><Field label="Activity"><select className="select" value={metric} onChange={(e)=>setMetric(e.target.value)}>{metrics.map(([id,label])=><option key={id} value={id}>{label}</option>)}</select></Field><Field label="Period"><select className="select" value={period} onChange={(e)=>setPeriod(e.target.value)}>{['daily','weekly','monthly'].map(p=><option key={p} value={p}>{titleCase(p)}</option>)}</select></Field></div><QueryState query={query}>{query.data?.items.length?query.data.items.map(item=><Card className="content-card !flex !flex-row !items-center" key={item.user_id}><strong className="score-value !text-2xl w-9">{item.rank}</strong><div className="flex-1"><h3 className="!text-base">{item.first_name} {item.last_name}{item.user_id===user?.id?' · You':''}</h3><small>{item.value} {metric}</small></div></Card>):<EmptyState title="Every journey has a first step" body="The leaderboard will fill as your colleagues log activity."/>}</QueryState></Screen>;
+}

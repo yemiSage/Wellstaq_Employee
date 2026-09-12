@@ -1,10 +1,10 @@
 import path from "node:path";
 import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
-import { defineConfig } from "vite";
+import { defineConfig, loadEnv } from "vite";
 import { VitePWA } from "vite-plugin-pwa";
 
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
   // Vercel serves this app from the deployment origin. Root-absolute URLs keep
   // lazy chunks, the manifest and the service worker on the same stable scope.
   base: "/",
@@ -37,7 +37,7 @@ export default defineConfig({
         globPatterns: ["**/*.{js,css,html,png,jpg,jpeg,svg,woff2}"],
         runtimeCaching: [
           {
-            urlPattern: ({ url }) => url.origin === "https://18-204-12-4.sslip.io",
+            urlPattern: ({ url }) => url.origin === "https://wellstaq-api-production.up.railway.app",
             handler: "NetworkOnly",
             method: "GET"
           }
@@ -46,6 +46,9 @@ export default defineConfig({
     })
   ],
   resolve: { alias: { "@": path.resolve(process.cwd(), "src") } },
-  server: { host: "0.0.0.0", port: 4173 },
-  preview: { host: "0.0.0.0", port: 4173 }
-});
+  server: { host: "127.0.0.1", port: 4173, strictPort: true, proxy: { "/api": { target: loadEnv(mode, process.cwd(), "VITE_").VITE_API_BASE_URL || "https://wellstaq-api-production.up.railway.app", changeOrigin: true, rewrite: (requestPath) => requestPath.replace(/^\/api/, "") } } },
+  // Local production-build testing (`npm run preview`) hits the Railway API
+  // directly with no proxy, which the backend's CORS policy rejects from
+  // localhost. Mirror the dev proxy here so `npm run preview` works too.
+  preview: { host: "0.0.0.0", port: 4173, proxy: { "/api": { target: loadEnv(mode, process.cwd(), "VITE_").VITE_API_BASE_URL || "https://wellstaq-api-production.up.railway.app", changeOrigin: true, rewrite: (requestPath) => requestPath.replace(/^\/api/, "") } } }
+}));

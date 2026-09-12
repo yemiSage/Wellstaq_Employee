@@ -3,9 +3,7 @@ import { toast } from "sonner";
 import { useEffect } from "react";
 
 export function PwaUpdater() {
-  const { needRefresh: [needRefresh], updateServiceWorker } = useRegisterSW({
-    onOfflineReady: () => toast.success("Wellstaq is ready to open offline."),
-  });
+  const { needRefresh: [needRefresh], updateServiceWorker } = useRegisterSW();
   useEffect(() => {
     if (needRefresh) {
       toast("A new Wellstaq version is ready.", { action: { label: "Update", onClick: () => void updateServiceWorker(true) } });

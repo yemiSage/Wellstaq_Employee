@@ -56,7 +56,7 @@ export class FetchApiTransport implements ApiTransport {
         body: body instanceof FormData ? body : body === undefined ? undefined : JSON.stringify(body),
       });
     } catch (error) {
-      if (error instanceof DOMException && error.name === "AbortError") {
+      if (error instanceof DOMException && (error.name === "AbortError" || error.name === "TimeoutError")) {
         throw new ApiError("The request timed out. Please try again.", 408, "timeout", [], true);
       }
       throw new ApiError("You appear to be offline. Reconnect and try again.", 0, "network_error", [], true);

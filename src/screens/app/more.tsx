@@ -6,6 +6,8 @@ import { PageHeader } from "@/components/page-header";
 import { Button } from "@/components/ui/button";
 
 const rows = [
+  { to: "/movement", icon: Profile, title: "Movement", body: "Log steps and daily activity" },
+  { to: "/leaderboard", icon: Profile, title: "Leaderboard", body: "Celebrate your shared progress" },
   { to: "/profile", icon: Profile, title: "Profile", body: "Personal details and avatar" },
   { to: "/notifications", icon: Notification, title: "Notifications", body: "Updates from your community" },
   { to: "/preferences", icon: Setting2, title: "Preferences", body: "Choose how Wellstaq feels" },

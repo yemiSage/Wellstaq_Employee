@@ -9,6 +9,8 @@ export default defineConfig({
     include: ["src/**/*.test.{ts,tsx}"],
     environment: "jsdom",
     globals: true,
+    pool: "threads",
+    maxWorkers: 1,
     setupFiles: ["./src/test/setup.ts"],
     coverage: { reporter: ["text", "html"] },
   },

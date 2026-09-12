@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { ArrowRight2, Calendar, Cup, HeartTick, Notification } from "iconsax-react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/auth/auth-context";
 import { employeeApi } from "@/api/services";
 import { queryKeys } from "@/lib/query-keys";
@@ -8,41 +8,19 @@ import { formatDate, initials } from "@/lib/utils";
 import { Card } from "@/components/ui/card";
 import { ErrorState, PageLoader } from "@/components/ui/states";
 
-const fallbackEvents = [
-  { id: "mindful", title: "Her Wellness Circle", description: "A mindful conversation and community session.", imageUrl: "/assets/figma/event-mindful.jpeg", startDate: new Date().toISOString(), participantCount: 28 },
-  { id: "meditation", title: "Midweek reset", description: "Pause, breathe and return with more clarity.", imageUrl: "/assets/figma/event-meditation.jpeg", startDate: new Date(Date.now() + 86400000 * 2).toISOString(), participantCount: 17 },
-];
-
 export function HomeScreen() {
-  const { user } = useAuth();
-  const navigate = useNavigate();
+  const { user } = useAuth(); const navigate = useNavigate();
   const query = useQuery({ queryKey: queryKeys.home(user?.organizationId, user?.branchId, user?.id), queryFn: () => employeeApi.home(user!.organizationId), enabled: Boolean(user) });
-  if (query.isLoading) return <PageLoader />;
-  if (query.isError) return <div className="page-pad pt-8"><ErrorState retry={() => void query.refetch()} /></div>;
-  const data = query.data!;
-  const events = data.events.length ? data.events : fallbackEvents;
-  const score = Number(data.scores.overall_score ?? data.scores.score ?? 78);
-  const streak = Number(data.streak.current_streak_days ?? 0);
-  return (
-    <div className="home-page">
-      <header className="home-header">
-        <button className="avatar" onClick={() => navigate("/profile")} aria-label="Open profile">{user?.avatarUrl ? <img src={user.avatarUrl} alt="" /> : initials(user?.firstName, user?.lastName)}</button>
-        <div><p>Good {new Date().getHours() < 12 ? "morning" : new Date().getHours() < 18 ? "afternoon" : "evening"},</p><h1>{user?.firstName || "there"}</h1></div>
-        <button className="header-icon" onClick={() => navigate("/notifications")} aria-label="Notifications"><Notification color="currentColor" size="24" />{data.unreadCount > 0 && <span className="notification-dot">{Math.min(data.unreadCount, 9)}</span>}</button>
-      </header>
-
-      <section className="wellbeing-ribbon" aria-label={`Wellbeing score ${score} percent`}>
-        <div className="ribbon-copy"><span className="eyebrow">Your week</span><strong>{score}%</strong><p>{score >= 75 ? "You’re finding a healthy rhythm." : "Small check-ins can shift the week."}</p></div>
-        <img className="ribbon-mood" src="/assets/figma/mood-amazed.png" alt="Wellbeing mood" />
-        <div className="wellbeing-meter"><span style={{ width: `${Math.max(4, Math.min(score, 100))}%` }} /></div>
-        <div className="week-dots">{["M", "T", "W", "T", "F", "S", "S"].map((day, index) => <span key={`${day}-${index}`} className={index < 5 ? "done" : ""}>{day}</span>)}</div>
-      </section>
-
-      <button className="streak-card" onClick={() => navigate("/activity")}><span className="streak-icon"><HeartTick color="currentColor" size="24" variant="TwoTone" /></span><span><strong>{streak ? `${streak} day check-in streak` : "Start today’s check-in"}</strong><small>{data.streak.checked_in_today ? "You showed up for yourself today." : "It takes less than a minute."}</small></span><ArrowRight2 color="currentColor" size="20" /></button>
-
-      <section className="section-block"><div className="section-heading"><div><span className="eyebrow">Move together</span><h2>Active challenge</h2></div><button onClick={() => navigate("/explore")}>See all</button></div><Card className="challenge-card"><span className="challenge-icon"><Cup color="currentColor" size="24" variant="TwoTone" /></span><div><strong>{data.challenges[0]?.title ?? "7 days of better breaks"}</strong><p>{data.challenges[0]?.description ?? "Take one intentional pause each workday."}</p><div className="mini-progress"><span style={{ width: `${data.challenges[0]?.progress ?? 42}%` }} /></div></div></Card></section>
-
-      <section className="section-block"><div className="section-heading"><div><span className="eyebrow">Coming up</span><h2>Events for you</h2></div><button onClick={() => navigate("/events")}>See all</button></div><div className="event-rail">{events.map((event) => <button className="event-card" key={event.id} onClick={() => navigate(`/events/${event.id}`, { state: { event } })}><img src={event.imageUrl ?? "/assets/figma/event-mindful.jpeg"} alt="" /><span className="event-card-copy"><small><Calendar color="currentColor" size="14" /> {formatDate(event.startDate)}</small><strong>{event.title}</strong><p>{event.description}</p></span></button>)}</div></section>
-    </div>
-  );
+  if (query.isPending) return <PageLoader />;
+  if (query.isError) return <div className="page-pad"><ErrorState retry={() => void query.refetch()} /></div>;
+  const data = query.data; const streak = Number(data.streak.current_streak_days ?? 0); const checked = Boolean(data.streak.checked_in_today);
+  return <div className="home-page"><header className="home-header"><span className="home-brand"><img src="/assets/brand/wellstaq-logo.png" alt="Wellstaq" /></span><button className="header-icon" onClick={() => navigate("/notifications")} aria-label="Notifications"><Notification color="currentColor" size="23" />{data.unreadCount > 0 && <span className="notification-dot">{Math.min(data.unreadCount, 9)}</span>}</button><button className="avatar !rounded-full" onClick={() => navigate("/profile")} aria-label="Open profile">{user?.avatarUrl ? <img src={user.avatarUrl} alt="" /> : initials(user?.firstName, user?.lastName)}</button></header>
+    <section className="home-greeting"><p>Good {new Date().getHours() < 12 ? "morning" : new Date().getHours() < 18 ? "afternoon" : "evening"},</p><h1>Hello, {user?.firstName || "there"}.<br />Today’s summary.</h1></section>
+    <div className="home-summary"><strong>{String(streak).padStart(2, "0")}</strong><span>Day check-in<br />streak</span><Link to="/events" aria-label="Open calendar"><Calendar size="23" color="currentColor" /></Link></div>
+    {data.partial && <div className="mx-6 mb-4"><ErrorState message="Some updates couldn’t load. You can still explore your wellbeing space." retry={() => void query.refetch()} /></div>}
+    <section className="wellbeing-ribbon"><div className="ribbon-copy"><span className="eyebrow">Your daily check-in</span><strong>{checked ? "Well done." : "How are you?"}</strong><p>{checked ? "You made a little time for yourself today." : "A small pause. A little more clarity."}</p></div><span className="ribbon-mood wellbeing-orb" aria-hidden="true"/><Link className="ribbon-action" to="/activity"><span>{checked ? "View today’s check-in" : "Start today’s check-in"}</span><ArrowRight2 size="20" color="currentColor" /></Link></section>
+    <section className="section-block stat-grid"><Card><span><HeartTick size="21" color="currentColor" /></span><strong>{checked ? "Done" : "Today"}</strong><small>Your personal check-in</small></Card><Card><span><Calendar size="21" color="currentColor" /></span><strong>{data.events.length}</strong><small>Upcoming events</small></Card></section>
+    <section className="section-block"><div className="section-heading"><h2>Your wellbeing</h2><Link className="text-link" to="/scores">View scores ↗</Link></div><Link to="/priorities" className="action-row"><span><HeartTick size="23" color="currentColor" /></span><span><strong>Make room for what matters</strong><small>Set your personal priorities</small></span><ArrowRight2 size="18" color="currentColor" /></Link></section>
+    <section className="section-block"><div className="section-heading"><h2>Move together</h2><Link className="text-link" to="/challenges">All challenges ↗</Link></div>{data.challenges.length ? data.challenges.slice(0, 2).map((challenge) => <Link className="card-link mb-3" to={`/challenges/${challenge.id}`} key={challenge.id}><Card className="challenge-card"><span className="challenge-icon"><Cup color="currentColor" size="24" /></span><div><strong>{challenge.title}</strong><p>{challenge.description || "Build a healthy habit with your community."}</p><small className="chip">{challenge.participantCount} participants</small></div></Card></Link>) : <Card className="content-card"><h3>A little motivation, together.</h3><p>Your team’s challenges will appear here when they’re available.</p></Card>}</section>
+    <section className="section-block"><div className="section-heading"><h2>On the calendar</h2><Link className="text-link" to="/events">See all ↗</Link></div>{data.events.length ? <div className="event-rail">{data.events.map((event) => <Link className="event-card" key={event.id} to={`/events/${event.id}`}><img src={event.imageUrl ?? "/assets/figma/event-mindful.jpeg"} alt="" /><span className="event-card-copy"><small>{formatDate(event.startDate)}</small><strong>{event.title}</strong><p>{event.description}</p></span></Link>)}</div> : <p className="empty-note">No upcoming events yet. Your next shared experience will appear here.</p>}</section></div>;
 }

@@ -13,6 +13,45 @@ export function PageLoader() {
   );
 }
 
+export function HomeSkeleton() {
+  return (
+    <div className="home-skeleton" role="status" aria-live="polite" aria-label="Loading">
+      <div className="home-skeleton-row" style={{ justifyContent: "space-between" }}>
+        <div className="skeleton-block" style={{ width: 46, height: 46, borderRadius: 16 }} />
+        <div className="skeleton-block" style={{ width: 44, height: 44, borderRadius: 15 }} />
+      </div>
+      <div style={{ display: "grid", gap: 10 }}>
+        <div className="skeleton-block" style={{ width: "40%", height: 14, borderRadius: 8 }} />
+        <div className="skeleton-block" style={{ width: "80%", height: 34, borderRadius: 10 }} />
+      </div>
+      <div className="home-skeleton-row">
+        <div className="skeleton-block" style={{ width: 64, height: 40, borderRadius: 10 }} />
+        <div className="skeleton-block" style={{ width: "35%", height: 14, borderRadius: 8 }} />
+        <div className="skeleton-block" style={{ width: 46, height: 46, borderRadius: "50%", marginLeft: "auto" }} />
+      </div>
+      <div className="skeleton-block" style={{ height: 132, borderRadius: 16 }} />
+      <div className="home-skeleton-grid">
+        <div className="skeleton-block" style={{ height: 130, borderRadius: 16 }} />
+        <div className="skeleton-block" style={{ height: 130, borderRadius: 16 }} />
+      </div>
+      <div style={{ display: "grid", gap: 12 }}>
+        <div className="skeleton-block" style={{ width: "45%", height: 20, borderRadius: 8 }} />
+        <div className="skeleton-block" style={{ height: 74, borderRadius: 25 }} />
+      </div>
+      <div style={{ display: "grid", gap: 12 }}>
+        <div className="skeleton-block" style={{ width: "35%", height: 20, borderRadius: 8 }} />
+        <div className="skeleton-block" style={{ height: 96, borderRadius: 16 }} />
+        <div className="skeleton-block" style={{ height: 96, borderRadius: 16 }} />
+      </div>
+      <div style={{ display: "grid", gap: 12 }}>
+        <div className="skeleton-block" style={{ width: "40%", height: 20, borderRadius: 8 }} />
+        <div className="skeleton-block" style={{ height: 110, borderRadius: 16 }} />
+        <div className="skeleton-block" style={{ height: 110, borderRadius: 16 }} />
+      </div>
+    </div>
+  );
+}
+
 export function EmptyState({ title, body, action }: { title: string; body: string; action?: React.ReactNode }) {
   return (
     <div className="grid place-items-center gap-3 rounded-3xl border border-dashed border-line bg-white p-8 text-center">

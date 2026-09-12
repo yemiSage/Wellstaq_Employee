@@ -226,15 +226,20 @@ h1 { overflow-wrap: anywhere; }
 .sheet-backdrop[data-ending-style], .sheet-backdrop[data-starting-style] { opacity: 0; }
 .sheet-viewport { position: fixed; z-index: 61; inset: 0; display: flex; align-items: flex-end; justify-content: center; }
 .date-sheet { width: min(100%, 480px); padding: 10px 22px calc(18px + env(safe-area-inset-bottom)); border: 1px solid #e8e6e1; border-radius: 28px 28px 0 0; background: #fafaf8; transition: transform .24s cubic-bezier(.2,.8,.2,1); }
-.install-sheet { height: 40dvh; display: flex; flex-direction: column; justify-content: space-between; overflow-y: auto; }
+/* Hugs its content — the iOS variant has three steps, the Android one two, and
+   either can wrap to a second line on a narrow screen. A fixed height stretched
+   the gaps on tall phones and clipped the steps on short ones; the cap keeps a
+   wrapped worst case inside the viewport and scrolls past it instead. */
+.install-sheet { max-height: 88dvh; display: flex; flex-direction: column; gap: 18px; overflow-y: auto; }
+.install-sheet .sheet-handle { margin-bottom: 4px; }
 .date-sheet[data-ending-style], .date-sheet[data-starting-style] { transform: translateY(100%); }
 .sheet-handle { display: block; width: 42px; height: 5px; margin: 2px auto 22px; border-radius: 99px; background: #d8d5ce; }
 .sheet-title { display: grid; grid-template-columns: 44px 1fr; gap: 12px; align-items: start; }
 .sheet-title > span { display: grid; width: 44px; height: 44px; place-items: center; border-radius: 15px; background: #fff0e2; color: #ea6a05; }
 .sheet-title [role="heading"] { font-family: "Bricolage Grotesque", sans-serif; font-weight: 600; font-size: var(--text-h3); line-height: var(--leading-h3); }
 .sheet-title [data-slot="description"], .sheet-title p { margin-top: 4px; color: #686761; font-size: var(--text-caption); line-height: var(--leading-caption); }
-.install-steps { display: grid; gap: 14px; margin: 22px 0; padding: 0; list-style: none; }
-.install-steps li { display: flex; align-items: center; gap: 12px; font-size: 14px; line-height: 1.5; color: #202020; }
+.install-steps { display: grid; gap: 14px; margin: 0; padding: 0; list-style: none; }
+.install-steps li { display: flex; align-items: center; gap: 12px; font-size: 14px; line-height: 1.5; color: #202020; text-wrap: pretty; }
 .install-steps li svg { flex-shrink: 0; vertical-align: middle; }
 .install-steps span { display: grid; flex-shrink: 0; place-items: center; width: 26px; height: 26px; border-radius: 50%; background: #fff0e2; color: #a54300; font-size: 12px; font-weight: 700; }
 .date-wheels { display: grid; grid-template-columns: 1.2fr .8fr 1fr; gap: 8px; margin: 22px 0; padding: 12px; border-block: 1px solid #e8e6e1; }
@@ -247,6 +252,9 @@ h1 { overflow-wrap: anywhere; }
 .skeleton-line.short { width: 45%; }
 .skeleton-card { height: 88px; width: 100%; margin-top: 6px; }
 @keyframes skeleton-shimmer { 0% { background-position: 100% 50%; } 100% { background-position: 0 50%; } }
+.home-skeleton { display: grid; gap: 24px; padding: calc(24px + env(safe-area-inset-top)) 16px 32px; }
+.home-skeleton-row { display: flex; align-items: center; gap: 12px; }
+.home-skeleton-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 @media (min-width: 769px) { .mobile-shell, #root > main { height: calc(100dvh - 48px); margin-block: 24px; border-radius: 32px; } .auth-sheet { padding-inline: 24px; } }
 @media (max-height: 700px) { .auth-brand { height: 44px; margin-top: max(calc(16px + env(safe-area-inset-top)), 3dvh); } .auth-sheet { gap: 16px; } .auth-copy { gap: 4px; } }
 @media (max-width: 350px) { .event-list-card { grid-template-columns: 92px 1fr; } .event-list-card > img { width: 92px; } }

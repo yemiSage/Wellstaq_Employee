@@ -18,12 +18,14 @@ export function AuthLayout({
   onClose,
   progress,
   hideIntro,
+  hideLogo,
 }: {
   children: ReactNode;
   onBack?: () => void;
   onClose?: () => void;
   progress?: AuthProgress;
   hideIntro?: boolean;
+  hideLogo?: boolean;
 }) {
   const location = useLocation();
   const sceneRef = useRef<HTMLElement>(null);
@@ -36,7 +38,7 @@ export function AuthLayout({
   // Only screens with no back button (so the row's left slot is free) get the
   // logo docked inline with close/progress; screens with a back button keep
   // it on its own line below, since the two would otherwise collide.
-  const logoInRow = !hideIntro && !onBack;
+  const logoInRow = !hideIntro && !hideLogo && !onBack;
 
   return (
     <main ref={sceneRef} className="auth-scene">
@@ -60,10 +62,10 @@ export function AuthLayout({
           )}
         </div>
       )}
-      {!logoInRow && !hideIntro && <BrandLogo className="auth-brand" />}
+      {!logoInRow && !hideIntro && !hideLogo && <BrandLogo className="auth-brand" />}
       {!hideIntro && (
         <motion.div
-          className={`auth-scene-copy${logoInRow ? " auth-scene-copy-tight" : ""}`}
+          className="auth-scene-copy"
           aria-hidden="true"
           initial={reducedMotion ? false : { opacity: 0, y: 14 }}
           animate={{ opacity: 1, y: 0 }}

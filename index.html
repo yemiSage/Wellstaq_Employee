@@ -11,6 +11,10 @@
       content="default-src 'self'; img-src 'self' data: blob: https:; media-src 'self' blob: https:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://wellstaq-api-production.up.railway.app https://*.amazonaws.com; script-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"
     />
     <title>Wellstaq Employee</title>
+    <!-- The welcome hero is a CSS background, so without this it only starts
+         downloading after the JS bundle mounts the element that references it.
+         Preloading overlaps the fetch with the bundle's own. -->
+    <link rel="preload" as="image" href="/assets/welcome-hero.jpg" fetchpriority="high" />
     <!-- Paints the app's base canvas color before the bundled CSS loads and
          executes, so the first frame is never a flash of browser-default
          white while the real stylesheet is still on its way. -->

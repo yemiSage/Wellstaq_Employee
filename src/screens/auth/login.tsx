@@ -32,7 +32,7 @@ export function LoginScreen() {
   });
 
   return (
-    <AuthLayout onClose={() => navigate("/welcome")}>
+    <AuthLayout onBack={() => navigate("/welcome")} hideLogo>
       <div className="auth-copy auth-copy-login"><h1>Welcome back.</h1><p>Enter your details below to get back into your account.</p></div>
       <form className="grid gap-4" onSubmit={submit} noValidate>
         <Field label="Email Address" error={form.formState.errors.email?.message}>

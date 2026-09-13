@@ -2,13 +2,20 @@ import { useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
+import { Global, Lock1 } from 'iconsax-react';
 import { useAuth } from '@/auth/auth-context';
 import { employeeApi } from '@/api/services';
 import { Screen, QueryState, Pagination, FormError } from '@/components/screen';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Field, Input } from '@/components/ui/field';
+import { CoverImageField } from '@/components/ui/cover-image-field';
 import { EmptyState } from '@/components/ui/states';
+
+const privacyOptions = [
+  { value: 'public', label: 'Public', body: 'Anyone can join', icon: Global },
+  { value: 'private', label: 'Private', body: 'Invite only', icon: Lock1 },
+] as const;
 
 export function ClubDetailScreen() {
   const {clubId=''}=useParams();const {user}=useAuth();const client=useQueryClient();
@@ -33,5 +40,5 @@ export function CreateClubScreen() {
   const {user}=useAuth();const navigate=useNavigate();const client=useQueryClient();
   const [values,setValues]=useState({name:'',description:'',category:'fitness',privacy:'public'});const [file,setFile]=useState<File|null>(null);
   const save=useMutation({mutationFn:async()=>{const image_url=file?await employeeApi.upload(file,'clubs'):null;return employeeApi.createClub(user!.organizationId,user!.branchId,{name:values.name.trim(),description:values.description.trim()||null,category:values.category,privacy:values.privacy,image_url});},onSuccess:(club)=>{void client.invalidateQueries({queryKey:['clubs']});toast.success('Your club is ready.');navigate(`/clubs/${club.id}`,{replace:true});}});
-  return <Screen title="Create club"><h1 className="page-title">Bring your people together.</h1><form className="list-stack" onSubmit={(e)=>{e.preventDefault();save.mutate();}}><Field label="Club name"><Input required maxLength={120} value={values.name} onChange={(e)=>setValues({...values,name:e.target.value})} placeholder="The walking club"/></Field><Field label="What is it about?" hint="Optional."><textarea className="textarea" rows={3} maxLength={2000} value={values.description} onChange={(e)=>setValues({...values,description:e.target.value})}/></Field><Field label="Category"><select className="select" value={values.category} onChange={(e)=>setValues({...values,category:e.target.value})}>{categories.map(([value,label])=><option key={value} value={value}>{label}</option>)}</select></Field><Field label="Who can join?"><select className="select" value={values.privacy} onChange={(e)=>setValues({...values,privacy:e.target.value})}><option value="public">Public — anyone in your workplace</option><option value="private">Private — by invitation</option></select></Field><Field label="Cover image" hint="Optional. Images up to 20 MB."><Input type="file" accept="image/*" onChange={(e)=>setFile(e.target.files?.[0]??null)}/></Field><FormError error={save.error}/><Button disabled={!values.name.trim()} loading={save.isPending}>Create club</Button></form></Screen>;
+  return <Screen title="Create club"><h1 className="page-title">Bring your people together.</h1><form className="list-stack" onSubmit={(e)=>{e.preventDefault();save.mutate();}}><CoverImageField file={file} onChange={setFile} hint="Optional. Images up to 20 MB." /><Field label="Club name"><Input required maxLength={120} value={values.name} onChange={(e)=>setValues({...values,name:e.target.value})} placeholder="The walking club"/></Field><Field label="What is it about?" hint="Optional."><textarea className="textarea" rows={3} maxLength={2000} value={values.description} onChange={(e)=>setValues({...values,description:e.target.value})}/></Field><Field label="Category"><select className="select" value={values.category} onChange={(e)=>setValues({...values,category:e.target.value})}>{categories.map(([value,label])=><option key={value} value={value}>{label}</option>)}</select></Field><Field label="Who can join?"><div className="privacy-toggle">{privacyOptions.map(({value,label,body,icon:Icon})=><button key={value} type="button" aria-pressed={values.privacy===value} onClick={()=>setValues({...values,privacy:value})}><span className="privacy-toggle-head"><Icon size="18" color="currentColor" /><strong>{label}</strong></span><small>{body}</small></button>)}</div></Field><FormError error={save.error}/><Button disabled={!values.name.trim()} loading={save.isPending}>Create club</Button></form></Screen>;
 }

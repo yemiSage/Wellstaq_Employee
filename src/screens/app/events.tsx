@@ -9,6 +9,7 @@ import { Screen, QueryState, Pagination, FormError } from "@/components/screen";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Field, Input } from "@/components/ui/field";
+import { CoverImageField } from "@/components/ui/cover-image-field";
 import { EmptyState } from "@/components/ui/states";
 import { formatDate } from "@/lib/utils";
 
@@ -34,7 +35,8 @@ export function EventDetailScreen() {
 export function CreateEventScreen() {
   const { user } = useAuth(); const navigate = useNavigate(); const client = useQueryClient();
   const [values,setValues] = useState({ title:"",description:"",start_date:"",time:"" });
-  const save = useMutation({ mutationFn: () => employeeApi.createEvent(user!.organizationId,{ ...values, branch_id:user!.branchId, time:`${values.time}:00` }), onSuccess:(event) => { void client.invalidateQueries({ queryKey:["events"] }); navigate(`/events/${event.id}`,{replace:true}); } });
+  const [file,setFile] = useState<File|null>(null);
+  const save = useMutation({ mutationFn: async () => { const image_url = file ? await employeeApi.upload(file,"events") : null; return employeeApi.createEvent(user!.organizationId,{ ...values, branch_id:user!.branchId, time:`${values.time}:00`, image_url }); }, onSuccess:(event) => { void client.invalidateQueries({ queryKey:["events"] }); navigate(`/events/${event.id}`,{replace:true}); } });
   if (!hasPermission(user,"event.create",user?.branchId)) return <Screen title="Create event"><EmptyState title="Organizer access required" body="Your account does not have permission to create events." /></Screen>;
-  return <Screen title="Create event"><h1 className="page-title">Bring people together.</h1><form className="list-stack" onSubmit={(e)=>{e.preventDefault();save.mutate();}}><Field label="Event title"><Input required maxLength={255} value={values.title} onChange={(e)=>setValues({...values,title:e.target.value})}/></Field><Field label="Description"><textarea className="textarea" rows={4} value={values.description} onChange={(e)=>setValues({...values,description:e.target.value})}/></Field><Field label="Date"><Input type="date" required value={values.start_date} onChange={(e)=>setValues({...values,start_date:e.target.value})}/></Field><Field label="Time"><Input type="time" required value={values.time} onChange={(e)=>setValues({...values,time:e.target.value})}/></Field><FormError error={save.error}/><Button loading={save.isPending}>Create event</Button></form></Screen>;
+  return <Screen title="Create event"><h1 className="page-title">Bring people together.</h1><form className="list-stack" onSubmit={(e)=>{e.preventDefault();save.mutate();}}><CoverImageField file={file} onChange={setFile} hint="Optional. Images up to 20 MB." /><Field label="Event title"><Input required maxLength={255} value={values.title} onChange={(e)=>setValues({...values,title:e.target.value})}/></Field><Field label="Description"><textarea className="textarea" rows={4} value={values.description} onChange={(e)=>setValues({...values,description:e.target.value})}/></Field><Field label="Date"><Input type="date" required value={values.start_date} onChange={(e)=>setValues({...values,start_date:e.target.value})}/></Field><Field label="Time"><Input type="time" required value={values.time} onChange={(e)=>setValues({...values,time:e.target.value})}/></Field><FormError error={save.error}/><Button loading={save.isPending}>Create event</Button></form></Screen>;
 }

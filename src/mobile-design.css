@@ -371,6 +371,11 @@ input, .select, .textarea { border-radius: var(--radius-control); font-size: 16p
 [data-theme=dark] .eyebrow, [data-theme=dark] .text-link, [data-theme=dark] .ribbon-copy .eyebrow { color: #ffb77b; }
 [data-theme=dark] .settings-row, [data-theme=dark] .preference-row, [data-theme=dark] .session-card, [data-theme=dark] .notification-item { background: #2c322a; color: #f0f1ed; border-color: #41473e; }
 [data-theme=dark] input, [data-theme=dark] textarea, [data-theme=dark] .select { background: #252c22; color: #f0f1ed; border-color: #53614d; }
+[data-theme=dark] .cover-picker-drop { background: #252c22; border-color: #53614d; color: #b4b6ae; }
+[data-theme=dark] .privacy-toggle button { background: #252c22; border-color: #53614d; color: #f0f1ed; }
+[data-theme=dark] .privacy-toggle button small { color: #b4b6ae; }
+[data-theme=dark] .privacy-toggle button[aria-pressed="true"] { border-color: #ffb77b; background: #423319; color: #ffb77b; }
+[data-theme=dark] .privacy-toggle button[aria-pressed="true"] small { color: #ffcfaa; }
 [data-theme=dark] .segmented { background: #343d30; }
 [data-theme=dark] .segmented button.active { background: #47553f; color: #fff; }
 [data-theme=dark] .chat-bubble.mine, [data-theme=dark] .priority-option.selected { background: #564026; color: #ffcfaa; }

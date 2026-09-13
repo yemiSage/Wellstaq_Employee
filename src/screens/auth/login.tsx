@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Eye, EyeSlash, Lock1, Sms } from "iconsax-react";
 import { toast } from "sonner";
 import { AuthLayout } from "@/components/auth-layout";
@@ -18,14 +18,12 @@ export function LoginScreen() {
   const [showPassword, setShowPassword] = useState(false);
   const { signIn } = useAuth();
   const navigate = useNavigate();
-  const location = useLocation();
   const form = useForm<Values>({ resolver: zodResolver(schema), defaultValues: { email: "", password: "" }, mode: "onChange" });
-  const destination = (location.state as { from?: string } | null)?.from ?? "/home";
 
   const submit = form.handleSubmit(async ({ email, password }) => {
     try {
       const result = await signIn(email, password);
-      navigate(result === "2fa" ? "/2fa" : destination, { replace: true });
+      navigate(result === "2fa" ? "/2fa" : "/home", { replace: true });
     } catch (error) {
       toast.error(error instanceof ApiError ? error.message : "We couldn’t sign you in. Check your details and try again.");
     }

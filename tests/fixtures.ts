@@ -54,6 +54,7 @@ export async function mockEmployeeApi(page:Page){
     if(path.endsWith('/clubs'))return ok(pageOf([club]));
     if(path.endsWith('/clubs/club-1'))return ok(club);
     if(path.endsWith('/clubs/club-1/members'))return ok(pageOf([{id:'user-1',first_name:'Yemi',last_name:'Ade'}]));
+    if(path.endsWith('/members'))return ok(pageOf([{id:'user-1',first_name:'Yemi',last_name:'Ade',email:employee.email,avatar_url:null,status:'active',role_id:null,branch_id:'branch-1'}]));
     if(path.endsWith('/messages'))return ok(pageOf([{id:'message-1',user_id:'user-1',content:'Hello, everyone!',created_at:'2026-09-11T10:00:00Z'}]));
     if(path.endsWith('/activities/me'))return ok(pageOf([]));
     if(path.endsWith('/activity-log/trend'))return ok({metric_type:'steps',granularity:'daily',points:[{period:'2026-09-11',value:'1200'}]});

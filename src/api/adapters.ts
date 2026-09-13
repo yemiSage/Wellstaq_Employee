@@ -86,6 +86,7 @@ export function mapChallenges(value: unknown): ChallengeItem[] {
       description: data.description as string | null | undefined,
       progress: Number(data.progress_percentage ?? progress.percentage ?? 0),
       participantCount: Number(data.participant_count ?? 0),
+      status: String(data.status ?? "active"),
     };
   });
 }

@@ -1,7 +1,7 @@
 import { apiTransport } from "./transport";
 import { mapChallenges, mapCurrentUser, mapEvents, mapNotifications, mapPosts, unpack } from "./adapters";
 import type { TokenPair } from "@/auth/auth-vault";
-import type { WellbeingEntry } from "./domain";
+import type { EventItem, WellbeingEntry } from "./domain";
 import type { components } from "./generated/schema";
 
 type Schema = components["schemas"];
@@ -72,13 +72,34 @@ export const authApi = {
   disable2fa: (password: string) => apiTransport.request("/auth/2fa/disable", { method: "POST", body: { password } }),
 };
 
+// The events list comes back oldest first with no status filter, so once an
+// org has more than a page of history the upcoming ones fall off the end of a
+// single request. Walk the pages and keep what is still on the calendar,
+// using the same "not yet ended" rule as the Events tab.
+async function upcomingEvents(orgId: string) {
+  const today = new Date().toLocaleDateString("en-CA");
+  const upcoming: EventItem[] = [];
+  let offset = 0;
+  while (offset < 1000) {
+    const page = await apiTransport.request<Record<string, unknown>>(`/organizations/${orgId}/events?offset=${offset}&limit=100`);
+    const items = mapEvents(page);
+    upcoming.push(...items.filter((event) => (event.endDate || event.startDate) >= today && event.status !== "cancelled"));
+    offset += items.length;
+    if (!items.length || offset >= Number(unpack.record(page).total ?? 0)) break;
+  }
+  return upcoming.sort((a, b) => a.startDate.localeCompare(b.startDate)).slice(0, 6);
+}
+
 export const employeeApi = {
   async home(orgId: string) {
     const [scores, streak, events, challenges, unread] = await Promise.allSettled([
       apiTransport.request<Record<string, unknown>>("/wellbeing/scores/me"),
       apiTransport.request<Record<string, unknown>>("/engagement/checkins/streak"),
-      apiTransport.request<Record<string, unknown>>(`/organizations/${orgId}/events?limit=50`),
-      apiTransport.request<Record<string, unknown>>(`/organizations/${orgId}/challenges?status=active&limit=3`),
+      upcomingEvents(orgId),
+      // No status filter: every new challenge starts `upcoming` and only
+      // flips to `active` when its start date arrives, so filtering on
+      // active alone left the home section empty for weeks at a time.
+      apiTransport.request<Record<string, unknown>>(`/organizations/${orgId}/challenges?limit=20`),
       apiTransport.request<Record<string, unknown>>("/notifications/unread-count"),
     ]);
     const value = <T,>(result: PromiseSettledResult<T>, fallback: T) => (result.status === "fulfilled" ? result.value : fallback);
@@ -88,8 +109,8 @@ export const employeeApi = {
       partial: [scores, streak, events, challenges, unread].some((result) => result.status === "rejected"),
       scores: unpack.record(value(scores, {})),
       streak: unpack.record(value(streak, {})),
-      events: mapEvents(value(events, {})).filter((event) => event.startDate >= new Date().toLocaleDateString("en-CA") && event.status !== "cancelled").slice(0, 6),
-      challenges: mapChallenges(value(challenges, {})),
+      events: value(events, []),
+      challenges: mapChallenges(value(challenges, {})).filter((challenge) => !["completed", "cancelled"].includes(challenge.status ?? "")).sort((a, b) => Number(b.status === "active") - Number(a.status === "active")),
       unreadCount: Number(unreadData.unread_count ?? unreadData.count ?? 0),
     };
   },
@@ -144,7 +165,7 @@ export const employeeApi = {
   rsvp: (orgId: string, id: string, userId: string, status: "accepted" | "declined") => apiTransport.request(`${orgPath(orgId)}/events/${idPath(id)}/participants/${idPath(userId)}/status`, { method: "PATCH", body: { status } }),
   attendance: (orgId: string, id: string, userId: string, attended: boolean) => apiTransport.request(`${orgPath(orgId)}/events/${idPath(id)}/participants/${idPath(userId)}/attendance`, { method: "PATCH", body: { attended } }),
   createEvent: (orgId: string, body: Schema["EventCreateRequest"]) => apiTransport.request<Schema["EventResponse"]>(`${orgPath(orgId)}/events`, { method: "POST", body }),
-  challengePage: (orgId: string, offset = 0) => apiTransport.request<Schema["ChallengeListResponse"]>(`${orgPath(orgId)}/challenges?offset=${offset}&limit=20`),
+  challengePage: (orgId: string, offset = 0, status?: "upcoming" | "active" | "completed") => apiTransport.request<Schema["ChallengeListResponse"]>(`${orgPath(orgId)}/challenges?offset=${offset}&limit=20${status ? `&status=${status}` : ""}`),
   challenge: (orgId: string, id: string) => apiTransport.request<Schema["ChallengeResponse"]>(`${orgPath(orgId)}/challenges/${idPath(id)}`),
   challengeProgress: (orgId: string, id: string) => apiTransport.request<Schema["ParticipantProgressResponse"]>(`${orgPath(orgId)}/challenges/${idPath(id)}/progress/me`),
   joinChallenge: (orgId: string, id: string, leave = false) => apiTransport.request(`${orgPath(orgId)}/challenges/${idPath(id)}/join`, { method: leave ? "DELETE" : "POST" }),
@@ -162,6 +183,19 @@ export const employeeApi = {
   checkinPage: (offset = 0) => apiTransport.request<Schema["CheckinListResponse"]>(`/engagement/checkins?offset=${offset}&limit=20`),
   postPage: (orgId: string, offset = 0, saved = false) => apiTransport.request<Schema["PostListResponse"]>(`${orgPath(orgId)}/posts${saved ? "/saved" : ""}?offset=${offset}&limit=20`),
   post: (orgId: string, id: string) => apiTransport.request<Schema["PostResponse"]>(`${orgPath(orgId)}/posts/${idPath(id)}`),
+  deletePost: (orgId: string, id: string) => apiTransport.request(`${orgPath(orgId)}/posts/${idPath(id)}`, { method: "DELETE" }),
+  // Posts and comments only carry a user_id, so the feed resolves names and
+  // avatars against the org directory (readable by any member).
+  async members(orgId: string) {
+    const items: Schema["OrganizationMemberInfo"][] = [];
+    let offset = 0;
+    while (true) {
+      const page = await apiTransport.request<Schema["OrganizationMembersListResponse"]>(`${orgPath(orgId)}/members?offset=${offset}&limit=200`);
+      items.push(...page.items);
+      offset += page.items.length;
+      if (!page.items.length || offset >= page.total || offset >= 2000) return items;
+    }
+  },
   async postLikedByMe(orgId: string, id: string, userId: string) {
     let offset = 0;
     while (true) {
@@ -185,6 +219,7 @@ export const employeeApi = {
   createStory: (orgId: string, body: Schema["StoryCreateRequest"]) => apiTransport.request<Schema["StoryResponse"]>(`${orgPath(orgId)}/stories`, { method: "POST", body }),
   clubPage: (orgId: string, offset = 0) => apiTransport.request<Schema["ClubListResponse"]>(`${orgPath(orgId)}/clubs?offset=${offset}&limit=20`),
   club: (orgId: string, id: string) => apiTransport.request<Schema["ClubResponse"]>(`${orgPath(orgId)}/clubs/${idPath(id)}`),
+  createClub: (orgId: string, branchId: string, body: Schema["ClubCreateRequest"]) => apiTransport.request<Schema["ClubResponse"]>(`${orgPath(orgId)}/branches/${idPath(branchId)}/clubs`, { method: "POST", body }),
   clubMembers: (orgId: string, id: string) => apiTransport.request<Schema["ClubMembersListResponse"]>(`${orgPath(orgId)}/clubs/${idPath(id)}/members?limit=200`),
   clubMembership: (orgId: string, id: string, userId: string, leave = false) => apiTransport.request(`${orgPath(orgId)}/clubs/${idPath(id)}/members/${idPath(userId)}${leave ? "/leave" : ""}`, { method: leave ? "DELETE" : "PUT" }),
   messages: (orgId: string, type: string, id: string, offset = 0) => apiTransport.request<Schema["MessageListResponse"]>(`${orgPath(orgId)}/conversations/${idPath(type)}/${idPath(id)}/messages?offset=${offset}&limit=50`),

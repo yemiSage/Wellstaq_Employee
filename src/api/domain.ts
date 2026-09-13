@@ -66,4 +66,5 @@ export type ChallengeItem = {
   description?: string | null;
   progress?: number;
   participantCount?: number;
+  status?: string;
 };

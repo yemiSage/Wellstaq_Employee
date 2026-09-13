@@ -1,4 +1,4 @@
-import { Activity, ArrowRight2, Cup, Headphone, Lock1, Logout, Notification, Profile, SecuritySafe, Setting2 } from "iconsax-react";
+import { Activity, ArrowRight2, Cup, Headphone, Lock1, Logout, Notification, Profile, Save2, SecuritySafe, Setting2 } from "iconsax-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/auth/auth-context";
 import { initials } from "@/lib/utils";
@@ -11,6 +11,7 @@ const groups = [
     rows: [
       { to: "/movement", icon: Activity, title: "Movement", body: "Log steps and daily activity" },
       { to: "/leaderboard", icon: Cup, title: "Leaderboard", body: "Celebrate your shared progress" },
+      { to: "/saved", icon: Save2, title: "Saved posts", body: "Posts you kept for later" },
     ],
   },
   {

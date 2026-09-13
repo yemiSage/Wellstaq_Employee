@@ -39,9 +39,9 @@ h1 { overflow-wrap: anywhere; }
 .page-header h1 { text-align: center; }
 .page-title { margin: 7px 0 6px; font: 600 clamp(27px, 8vw, 34px)/1.05 "Bricolage Grotesque", sans-serif; letter-spacing: -.035em; }
 .page-lead { margin: 0; color: #686761; font-size: 14px; line-height: 1.6; }
-.eyebrow { margin: 0; color: #ea6a05; font-size: 11px; font-weight: 600; letter-spacing: .13em; text-transform: uppercase; }
-.section-heading { display: flex; align-items: end; justify-content: space-between; gap: 16px; margin-bottom: 14px; }
-.section-heading h2, .action-list > h2 { margin: 4px 0 0; font: 600 21px/1.15 "Bricolage Grotesque", sans-serif; letter-spacing: -.02em; }
+.eyebrow { margin: 0; color: #ea6a05; font-size: 11px; font-weight: 600; letter-spacing: .13em; text-transform: capitalize; }
+.section-heading { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 14px; }
+.section-heading h2, .action-list > h2 { margin: 0; font: 600 21px/1.15 "Bricolage Grotesque", sans-serif; letter-spacing: -.02em; }
 .section-heading > button { min-height: 44px; border: 0; background: transparent; color: #ea6a05; font-size: 13px; font-weight: 600; }
 
 .auth-scene { position: relative; display: flex; align-items: center; flex-direction: column; overflow: hidden !important; background: #f9f7f2; }
@@ -125,13 +125,43 @@ h1 { overflow-wrap: anywhere; }
 .event-list-card small, .event-list-card em { display: flex; align-items: center; gap: 5px; color: #ea6a05; font-size: 10px; font-style: normal; font-weight: 600; }
 .event-vertical-scroll { display: grid; gap: 12px; max-height: 320px; overflow-y: auto; overscroll-behavior-block: contain; scrollbar-width: thin; padding-right: 2px; }
 
-.checkin-card { display: grid; gap: 22px; padding: 18px; }
-.checkin-row { margin: 0; padding: 0; border: 0; }
-.checkin-row legend { margin-bottom: 10px; font-size: 12px; font-weight: 600; }
-.checkin-row > div { display: grid; grid-template-columns: repeat(4, 1fr); gap: 7px; }
-.checkin-row button { display: grid; min-height: 78px; place-items: center; gap: 3px; padding: 7px 4px; border: 1px solid #e8e6e1; border-radius: 15px; background: #fff; color: #686761; font-size: 9px; }
-.checkin-row button.selected { border-color: #ea6a05; background: #fffaf6; color: #202020; font-weight: 600; }
-.checkin-row img { width: 38px; height: 38px; object-fit: contain; }
+.checkin-card { display: grid; gap: 20px; padding: 18px; }
+.checkin-progress { display: flex; gap: 6px; }
+.checkin-progress span { flex: 1; height: 4px; border-radius: 999px; background: #ece9e3; transition: background .25s ease; }
+.checkin-progress span.is-done { background: #ea6a05; }
+.checkin-question { margin: 0; text-align: center; }
+/* The level word sits behind the face, both in the same grid cell. */
+/* Height is reserved so revealing the face on first selection doesn't shove
+   the slider down the screen mid-interaction; until then the placeholder ring
+   keeps the space looking deliberate rather than broken. */
+.checkin-face { display: grid; place-items: center; min-height: 152px; }
+.checkin-face img { width: clamp(108px, 38vw, 144px); height: auto; object-fit: contain; }
+.checkin-face:empty::after { width: clamp(108px, 38vw, 144px); aspect-ratio: 1; content: ""; border: 2px dashed #ece9e3; border-radius: 50%; }
+.checkin-slider { display: grid; gap: 10px; }
+.checkin-slider input { width: 100%; height: 32px; appearance: none; background: transparent; }
+.checkin-slider input::-webkit-slider-runnable-track { height: 6px; border-radius: 999px; background: #efece6; }
+.checkin-slider input::-webkit-slider-thumb { width: 26px; height: 26px; margin-top: -10px; appearance: none; border: 3px solid #fff; border-radius: 50%; background: #ea6a05; box-shadow: 0 2px 8px rgb(32 32 32 / 18%); }
+.checkin-slider input::-moz-range-track { height: 6px; border-radius: 999px; background: #efece6; }
+.checkin-slider input::-moz-range-thumb { width: 20px; height: 20px; border: 3px solid #fff; border-radius: 50%; background: #ea6a05; }
+/* Nothing picked yet: the thumb still has to sit somewhere, so grey it out
+   rather than let index 0 read as an answer the user gave. */
+.checkin-slider input.is-unset::-webkit-slider-thumb { background: #cfccc5; }
+.checkin-slider input.is-unset::-moz-range-thumb { background: #cfccc5; }
+.checkin-ticks { display: flex; justify-content: space-between; gap: 4px; }
+.checkin-ticks button { min-height: 34px; padding: 6px 8px; border: 0; background: transparent; color: #686761; transition: color .18s ease; }
+.checkin-reason button { min-height: 34px; padding: 6px 12px; border: 1px solid #e8e6e1; border-radius: 999px; background: transparent; color: #686761; transition: border-color .18s ease, color .18s ease; }
+.checkin-ticks button.is-active, .checkin-reason button.is-active { color: #a54300; font-weight: 600; }
+.checkin-reason button.is-active { border-color: #ea6a05; }
+/* Re-keyed on the level in the markup, so this replays whenever the answer
+   above it changes, not only on first reveal. */
+.checkin-reason { margin: 0 0 20px; padding: 0; border: 0; animation: checkin-reveal .28s ease-out both; }
+.checkin-reason legend { margin-bottom: 10px; padding: 0; color: #202020; font-weight: 600; }
+.checkin-reason > div { display: flex; flex-wrap: wrap; gap: 8px; }
+.checkin-note { margin-top: 10px; }
+@keyframes checkin-reveal { from { opacity: 0; transform: translateY(6px); } }
+@media (prefers-reduced-motion: reduce) { .checkin-reason { animation: none; } }
+.checkin-actions { display: flex; gap: 10px; }
+.checkin-actions > * { flex: 1; }
 .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 .stat-grid > div { display: grid; grid-template-columns: 36px 1fr; gap: 2px 10px; padding: 20px; border-radius: 16px; }
 .stat-grid span { grid-row: 1 / 3; display: grid; width: 36px; height: 36px; place-items: center; border-radius: 12px; background: #fff0e2; color: #ea6a05; }
@@ -165,6 +195,7 @@ h1 { overflow-wrap: anywhere; }
 .post-actions button:last-child { margin-left: auto; }
 
 .segmented { display: grid; grid-template-columns: 1fr 1fr; padding: 4px; border-radius: 15px; background: #eeeae4; }
+.segmented-3 { grid-template-columns: repeat(3, 1fr); }
 .segmented button { min-height: 42px; border: 0; border-radius: 11px; background: transparent; color: #686761; font-size: var(--text-body2); line-height: var(--leading-body2); font-weight: 600; }
 .segmented button.active { background: white; color: #202020; border: 1px solid rgb(232 230 225 / 70%); }
 .event-list { display: grid; gap: 14px; }

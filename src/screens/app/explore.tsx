@@ -199,7 +199,7 @@ export function ExploreScreen() {
   }, [tab]);
   return <div className="thread-page spaces-page"><PageHeader title="Spaces" back />
     <div className="page-pad intro-pad"><div className="section-intro"><p className="eyebrow">Your community</p><h1 className="page-title">A little more<br />connected.</h1></div></div>
-    <div className="spaces-tabs"><div className="segmented" role="tablist" aria-label="Spaces">{tabs.map((entry) => <button key={entry.key} type="button" role="tab" aria-selected={tab === entry.key} className={tab === entry.key ? "active" : ""} onClick={() => setTab(entry.key)}>{entry.label}</button>)}</div></div>
+    <div className="sticky-tabs"><div className="segmented" role="tablist" aria-label="Spaces">{tabs.map((entry) => <button key={entry.key} type="button" role="tab" aria-selected={tab === entry.key} className={tab === entry.key ? "active" : ""} onClick={() => setTab(entry.key)}>{entry.label}</button>)}</div></div>
     {tab === "feed" ? <><Feed composer={<Link ref={composerRef} className="thread-composer" to="/posts/new"><Avatar person={me} /><span className="thread-composer-box"><small>What’s new?</small></span></Link>} /><Fab to="/posts/new" label="New post" hidden={composerVisible} /></> : <><ClubsTab /><Fab to="/clubs/new" label="Create a club" /></>}
   </div>;
 }

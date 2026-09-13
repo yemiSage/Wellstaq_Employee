@@ -49,17 +49,17 @@ function ChallengesTab() {
   const [filter, setFilter] = useState<(typeof challengeFilters)[number]["key"]>("active");
   const [offset, setOffset] = useState(0);
   const query = useQuery({ queryKey: ["challenges", user?.organizationId, filter, offset], queryFn: () => employeeApi.challengePage(user!.organizationId, offset, filter) });
-  return <div className="list-stack !mt-0">
+  return <>
     {hasPermission(user, "challenge.create", user?.branchId) && <Fab to="/challenges/new" label="Create a challenge" />}
-    <div className="segmented segmented-3" role="tablist" aria-label="Challenge status">{challengeFilters.map((entry) => <button key={entry.key} type="button" role="tab" aria-selected={filter === entry.key} className={filter === entry.key ? "active" : ""} onClick={() => { setFilter(entry.key); setOffset(0); }}>{entry.label}</button>)}</div>
-    <QueryState query={query}>{query.data?.items.length ? query.data.items.map((c) => <Link className="card-link" key={c.id} to={`/challenges/${c.id}`}><Card className="content-card rounded-2xl">{c.image_url && <img className="h-40 w-full rounded-2xl object-cover" src={c.image_url} alt="" />}<span className="chip">{titleCase(c.status)}</span><h2>{c.name}</h2><p>{c.description}</p><small>{c.participant_count} participants · {c.end_date ? `Until ${formatDate(c.end_date)}` : "Open challenge"}</small></Card></Link>) : <EmptyState title={`No ${challengeFilters.find((entry) => entry.key === filter)!.label.toLowerCase()} challenges`} body="Challenges from your organization will appear here." />}<Pagination offset={offset} total={query.data?.total ?? 0} onChange={setOffset} /></QueryState>
-  </div>;
+    <div className="sticky-tabs"><div className="segmented segmented-3" role="tablist" aria-label="Challenge status">{challengeFilters.map((entry) => <button key={entry.key} type="button" role="tab" aria-selected={filter === entry.key} className={filter === entry.key ? "active" : ""} onClick={() => { setFilter(entry.key); setOffset(0); }}>{entry.label}</button>)}</div></div>
+    <div className="page-pad !pt-0 list-stack"><QueryState query={query}>{query.data?.items.length ? query.data.items.map((c) => <Link className="card-link" key={c.id} to={`/challenges/${c.id}`}><Card className="content-card rounded-2xl">{c.image_url && <img className="h-40 w-full rounded-2xl object-cover" src={c.image_url} alt="" />}<span className="chip">{titleCase(c.status)}</span><h2>{c.name}</h2><p>{c.description}</p><small>{c.participant_count} participants · {c.end_date ? `Until ${formatDate(c.end_date)}` : "Open challenge"}</small></Card></Link>) : <EmptyState title={`No ${challengeFilters.find((entry) => entry.key === filter)!.label.toLowerCase()} challenges`} body="Challenges from your organization will appear here." />}<Pagination offset={offset} total={query.data?.total ?? 0} onChange={setOffset} /></QueryState></div>
+  </>;
 }
 
 export function ActivityScreen() {
   return <div><PageHeader title="Activity" back />
     <div className="page-pad intro-pad"><div className="section-intro"><p className="eyebrow">Your challenges</p><h1 className="page-title">Small steps,<br />shared together.</h1></div></div>
-    <div className="page-pad !pt-0 list-stack"><ChallengesTab /></div></div>;
+    <ChallengesTab /></div>;
 }
 
 export function CheckInScreen() {

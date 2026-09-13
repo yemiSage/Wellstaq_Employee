@@ -236,8 +236,9 @@ input, .select, .textarea { border-radius: var(--radius-control); font-size: 16p
 .thread-page { min-height: 100%; }
 .intro-pad { padding-bottom: 6px; }
 /* Pinned just under the page header (which is 76px + inset tall) and given
-   the header's own frosted background so rows blur out beneath it. */
-.spaces-tabs { position: sticky; z-index: 19; top: calc(75px + env(safe-area-inset-top)); padding: 6px 16px 12px; background: rgb(248 249 246 / 82%); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); }
+   the header's own frosted background so content scrolls out beneath it.
+   Shared by any page whose tab/filter row should stick on scroll. */
+.sticky-tabs { position: sticky; z-index: 19; top: calc(75px + env(safe-area-inset-top)); padding: 6px 16px 12px; background: rgb(248 249 246 / 82%); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); }
 .spaces-page .thread-composer, .spaces-page .thread-row:first-of-type { border-top: 1px solid #e9e8e4; }
 .fab { position: fixed; z-index: 28; right: max(16px, calc((100% - 480px) / 2 + 16px)); bottom: calc(max(14px, env(safe-area-inset-bottom)) + 69px + 16px); display: grid; width: 56px; height: 56px; place-items: center; border-radius: 50%; background: var(--color-brand-soft); color: var(--color-brand); transition: transform .22s cubic-bezier(.2,.8,.2,1), opacity .18s ease; }
 .fab:active { transform: scale(.95); }
@@ -342,7 +343,7 @@ input, .select, .textarea { border-radius: var(--radius-control); font-size: 16p
 [data-theme=dark] .thread-composer-box { background: #2c322a; border-color: #41473e; }
 [data-theme=dark] .thread-actions > .is-liked { color: #ff5c6c; }
 [data-theme=dark] .thread-actions > *:active:not(:disabled), [data-theme=dark] .reply-bar-row input, [data-theme=dark] .thread-sheet-group { background: #2c322a; border-color: #41473e; }
-[data-theme=dark] .spaces-tabs { background: rgb(38 44 36 / 90%); }
+[data-theme=dark] .sticky-tabs { background: rgb(38 44 36 / 90%); }
 [data-theme=dark] .reply-bar-row input, [data-theme=dark] .thread-sheet-group button { color: #f0f1ed; }
 [data-theme=dark] .thread-sheet-group button { border-color: #41473e; }
 [data-theme=dark] .share-sheet-subhead button, [data-theme=dark] .share-icon { background: #343d30; color: #f0f1ed; }

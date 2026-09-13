@@ -96,6 +96,9 @@ h1 { overflow-wrap: anywhere; }
 .avatar.small { width: 38px; height: 38px; border-radius: 13px; }
 .avatar.large { width: 58px; height: 58px; border-radius: 20px; }
 .avatar.xlarge { width: 88px; height: 88px; border-radius: 28px; font-size: 22px; }
+.avatar-edit { position: relative; width: fit-content; }
+.avatar-edit-badge { position: absolute; right: -6px; bottom: -6px; display: grid; width: 30px; height: 30px; aspect-ratio: 1; place-items: center; border: 3px solid #f8f9f6; border-radius: 50%; background: #ea6a05; color: #fff; flex-shrink: 0; }
+.avatar-edit-badge:disabled { opacity: .6; }
 .header-icon { position: relative; display: grid; width: 44px; height: 44px; place-items: center; border: 1px solid #e8e6e1; border-radius: 15px; background: white; }
 .notification-dot { position: absolute; top: 1px; right: 1px; display: grid; min-width: 17px; height: 17px; place-items: center; padding: 0 4px; border: 2px solid white; border-radius: 99px; background: #ea6a05; color: white; font-size: 9px; font-weight: 800; }
 .wellbeing-ribbon { position: relative; margin: 0 20px; overflow: hidden; padding: 22px 20px 17px; border-radius: 28px; background: #262522; color: white; }
@@ -197,7 +200,7 @@ h1 { overflow-wrap: anywhere; }
 .segmented { display: grid; grid-template-columns: 1fr 1fr; padding: 4px; border-radius: 15px; background: #ececec; }
 .segmented-3 { grid-template-columns: repeat(3, 1fr); }
 .segmented button { min-height: 42px; border: 0; border-radius: 11px; background: transparent; color: #686761; font-size: var(--text-body2); line-height: var(--leading-body2); font-weight: 600; }
-.segmented button.active { background: white; color: #202020; border: 1px solid rgb(232 230 225 / 70%); }
+.segmented button.active { background: #f7f7f7; color: #202020; border: 1.5px solid #202020; }
 .event-list { display: grid; gap: 14px; }
 .event-list-card { display: grid; overflow: hidden; grid-template-columns: 112px 1fr; gap: 0; padding: 0; border: 1px solid #e8e6e1; border-radius: 21px; background: white; text-align: left; }
 .event-list-card > img { width: 112px; height: 100%; min-height: 145px; object-fit: cover; }
@@ -248,7 +251,10 @@ h1 { overflow-wrap: anywhere; }
 .session-card strong { font-size: var(--text-body2); line-height: var(--leading-body2); }
 .session-card small { margin-top: 4px; color: #686761; font-size: var(--text-caption); line-height: var(--leading-caption); }
 .select, .textarea { width: 100%; border: 1px solid #e8e6e1; border-radius: var(--radius-control); background: white; color: #202020; outline: none; }
-.select { height: 48px; padding: 0 14px; }
+/* Native selects ignore padding-right for their own arrow, so it renders
+   flush against the edge. Turn the native arrow off and draw a matching one
+   inset by the same 14px as the left padding, so both sides read as even. */
+.select { height: 48px; padding: 0 40px 0 14px; appearance: none; -webkit-appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none'%3E%3Cpath d='M6 9l6 6 6-6' stroke='%23686761' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; background-size: 16px; }
 .textarea { resize: vertical; padding: 14px; line-height: 1.5; }
 .select:focus, .textarea:focus { border-color: #ea6a05; outline: 2px solid rgb(234 106 5 / 25%); outline-offset: 1px; }
 
@@ -264,13 +270,35 @@ h1 { overflow-wrap: anywhere; }
 .privacy-toggle-head { display: flex; align-items: center; gap: 8px; }
 .privacy-toggle button strong { font-size: 15px; font-weight: 600; }
 .privacy-toggle button small { color: #686761; font-size: var(--text-body2); }
-.privacy-toggle button[aria-pressed="true"] { border-color: #ea6a05; background: #fff5eb; color: #ea6a05; }
+.privacy-toggle button[aria-pressed="true"] { border-color: #202020; background: #f7f7f7; color: #ea6a05; }
 .privacy-toggle button[aria-pressed="true"] small { color: #c96b1f; }
+
+/* A trailing action button always sits exactly 40px below whatever comes
+   before it. Each container already spaces its own rows with `gap`, so the
+   extra margin here only tops that up to 40px total for the final button. */
+.list-stack > button:last-child { margin-top: calc(40px - 14px); }
+.auth-sheet > button:last-child { margin-top: calc(40px - 24px); }
+.gap-4 > button:last-child { margin-top: calc(40px - 16px); }
+.gap-5 > button:last-child { margin-top: calc(40px - 20px); }
+.install-sheet > button:last-child { margin-top: calc(40px - 18px); }
 
 .offline-banner { position: sticky; z-index: 40; top: 0; display: flex; min-height: 38px; align-items: center; justify-content: center; gap: 7px; padding: 7px 14px; background: #262522; color: white; font-size: var(--text-caption); line-height: var(--leading-caption); text-align: center; }
 .sheet-backdrop { position: fixed; z-index: 60; inset: 0; background: rgb(32 32 32 / 45%); backdrop-filter: blur(3px); transition: opacity .2s ease; }
 .sheet-backdrop[data-ending-style], .sheet-backdrop[data-starting-style] { opacity: 0; }
 .sheet-viewport { position: fixed; z-index: 61; inset: 0; display: flex; align-items: flex-end; justify-content: center; }
+
+/* Centered modal (creation flows) rather than a bottom sheet: hugs its
+   content up to a max height, header and footer pinned, body scrolls. */
+.modal-viewport { position: fixed; z-index: 61; inset: 0; display: flex; align-items: center; justify-content: center; padding: 20px; }
+.modal-panel { display: flex; width: min(100%, 480px); max-height: min(92dvh, 760px); flex-direction: column; overflow: hidden; border: 1px solid #e8e6e1; border-radius: 28px; background: #fff; box-shadow: 0 30px 60px rgb(0 0 0 / 18%); transition: transform .2s ease, opacity .2s ease; }
+.modal-panel[data-ending-style], .modal-panel[data-starting-style] { opacity: 0; transform: scale(.96); }
+.modal-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; padding: 22px 22px 18px; border-bottom: 1px solid #e8e6e1; }
+.modal-head [role="heading"] { font-family: "Bricolage Grotesque", sans-serif; font-size: 20px; font-weight: 600; }
+.modal-head [data-slot="description"] { margin-top: 4px; color: #686761; font-size: 14px; line-height: 1.5; }
+.modal-close { display: grid; width: 32px; height: 32px; flex-shrink: 0; place-items: center; border: 0; border-radius: 50%; background: transparent; color: #9a9a9a; }
+.modal-body { flex: 1; overflow-y: auto; padding: 22px; }
+.modal-actions { display: flex; gap: 10px; padding: 16px 22px calc(16px + env(safe-area-inset-bottom)); border-top: 1px solid #e8e6e1; background: #fafaf8; }
+.modal-actions button:last-child { flex: 1; }
 .date-sheet { width: min(100%, 480px); padding: 10px 22px calc(18px + env(safe-area-inset-bottom)); border: 1px solid #e8e6e1; border-radius: 28px 28px 0 0; background: #fafaf8; transition: transform .24s cubic-bezier(.2,.8,.2,1); }
 /* Hugs its content — the iOS variant has three steps, the Android one two, and
    either can wrap to a second line on a narrow screen. A fixed height stretched

@@ -181,7 +181,7 @@ export const employeeApi = {
   setPriorities: (priorities: string[]) => apiTransport.request("/engagement/priorities", { method: "PUT", body: { priorities } }),
   survey: (orgId: string) => apiTransport.request<Schema["OpenWindowResponse"] | null>(`${orgPath(orgId)}/wellbeing-survey/open-window`),
   checkinPage: (offset = 0) => apiTransport.request<Schema["CheckinListResponse"]>(`/engagement/checkins?offset=${offset}&limit=20`),
-  postPage: (orgId: string, offset = 0, saved = false) => apiTransport.request<Schema["PostListResponse"]>(`${orgPath(orgId)}/posts${saved ? "/saved" : ""}?offset=${offset}&limit=20`),
+  postPage: (orgId: string, offset = 0) => apiTransport.request<Schema["PostListResponse"]>(`${orgPath(orgId)}/posts?offset=${offset}&limit=20`),
   post: (orgId: string, id: string) => apiTransport.request<Schema["PostResponse"]>(`${orgPath(orgId)}/posts/${idPath(id)}`),
   deletePost: (orgId: string, id: string) => apiTransport.request(`${orgPath(orgId)}/posts/${idPath(id)}`, { method: "DELETE" }),
   // Posts and comments only carry a user_id, so the feed resolves names and
@@ -212,7 +212,6 @@ export const employeeApi = {
   createPost: (orgId: string, body: Schema["PostCreateRequest"]) => apiTransport.request<Schema["PostResponse"]>(`${orgPath(orgId)}/posts`, { method: "POST", body }),
   comments: (orgId: string, id: string, offset = 0) => apiTransport.request<Schema["CommentListResponse"]>(`${orgPath(orgId)}/posts/${idPath(id)}/comments?offset=${offset}&limit=20`),
   comment: (orgId: string, id: string, content: string, parentId?: string) => apiTransport.request(`${orgPath(orgId)}/posts/${idPath(id)}/comments`, { method: "POST", body: { content, ...(parentId ? { parent_comment_id: parentId } : {}) } }),
-  savePost: (orgId: string, id: string, unsave = false) => apiTransport.request(`${orgPath(orgId)}/posts/${idPath(id)}/save`, { method: unsave ? "DELETE" : "POST" }),
   sharePost: (orgId: string, id: string) => apiTransport.request(`${orgPath(orgId)}/posts/${idPath(id)}/share`, { method: "POST", body: {} }),
   storyPage: (orgId: string) => apiTransport.request<Schema["StoryListResponse"]>(`${orgPath(orgId)}/stories`),
   story: (orgId: string, id: string) => apiTransport.request<Schema["StoryResponse"]>(`${orgPath(orgId)}/stories/${idPath(id)}`),
@@ -229,7 +228,15 @@ export const employeeApi = {
     if (!file.type.startsWith("image/") && !file.type.startsWith("video/")) throw new Error("Choose an image or video.");
     if (file.size > 20 * 1024 * 1024) throw new Error("Choose a file smaller than 20 MB.");
     const data = await apiTransport.request<Schema["UploadResponse"]>("/storage/upload-url", { method: "POST", body: { domain, content_type: file.type } });
-    const response = await fetch(data.upload_url, { method: "PUT", headers: { "Content-Type": data.content_type }, body: file, signal: AbortSignal.timeout(60000) });
+    let response: Response;
+    try {
+      response = await fetch(data.upload_url, { method: "PUT", headers: { "Content-Type": data.content_type }, body: file, signal: AbortSignal.timeout(60000) });
+    } catch {
+      // A bare "Failed to fetch" here means the browser couldn't even reach
+      // the storage upload URL (offline, blocked, or a CORS-misconfigured
+      // bucket) — surface something actionable instead of the raw message.
+      throw new Error("Couldn’t reach storage to upload your file. Check your connection and try again.");
+    }
     if (!response.ok) throw new Error("Upload failed. Please try again.");
     return data.media_url;
   },

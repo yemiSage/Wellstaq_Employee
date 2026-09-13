@@ -39,7 +39,7 @@ export function ComposeScreen({ story = false }: { story?: boolean }) {
         <div className="thread-rail"><Avatar person={me} /></div>
         <div className="thread-body">
           <div className="thread-meta"><strong>{me.name}</strong></div>
-          {!story && <textarea className="compose-input" rows={3} maxLength={10000} autoFocus value={content} onChange={(event) => setContent(event.target.value)} placeholder="What’s new?" aria-label="What’s new?" />}
+          {!story && <textarea className="compose-input" rows={5} maxLength={10000} autoFocus value={content} onChange={(event) => setContent(event.target.value)} placeholder="What’s new?" aria-label="What’s new?" />}
           {file && preview && <div className="thread-media compose-preview">{file.type.startsWith("video/") ? <video src={preview} controls playsInline /> : <img src={preview} alt="" />}<button type="button" aria-label="Remove attachment" onClick={() => { setFile(null); if (fileInput.current) fileInput.current.value = ""; }}><CloseCircle size="24" color="currentColor" variant="Bold" /></button></div>}
           <div className="compose-tools"><button type="button" aria-label={story ? "Choose a photo or video" : "Add a photo or video"} onClick={() => fileInput.current?.click()}><GalleryAdd size="22" color="currentColor" /></button>{story && !file && <span>Choose a photo or video to share as a story.</span>}</div>
           <input ref={fileInput} className="sr-only" type="file" accept="image/*,video/*" tabIndex={-1} onChange={(event) => setFile(event.target.files?.[0] ?? null)} />

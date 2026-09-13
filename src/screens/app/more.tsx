@@ -1,4 +1,6 @@
-import { Activity, ArrowRight2, Cup, Headphone, Lock1, Logout, Notification, Profile, Save2, SecuritySafe, Setting2 } from "iconsax-react";
+import { useState } from "react";
+import { Dialog } from "@base-ui/react/dialog";
+import { Activity, ArrowRight2, Cup, Headphone, Lock1, Logout, Notification, Profile, SecuritySafe, Setting2 } from "iconsax-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/auth/auth-context";
 import { initials } from "@/lib/utils";
@@ -11,7 +13,6 @@ const groups = [
     rows: [
       { to: "/movement", icon: Activity, title: "Movement", body: "Log steps and daily activity" },
       { to: "/leaderboard", icon: Cup, title: "Leaderboard", body: "Celebrate your shared progress" },
-      { to: "/saved", icon: Save2, title: "Saved posts", body: "Posts you kept for later" },
     ],
   },
   {
@@ -32,6 +33,7 @@ const groups = [
 
 export function MoreScreen() {
   const { user, signOut } = useAuth(); const navigate = useNavigate();
+  const [confirmOpen, setConfirmOpen] = useState(false);
   return <div><PageHeader title="More" back /><div className="page-pad grid gap-6">
     <button className="more-profile" onClick={() => navigate("/profile")}>
       <span className="avatar xlarge !rounded-full">{user?.avatarUrl ? <img src={user.avatarUrl} alt="" /> : initials(user?.firstName, user?.lastName)}</span>
@@ -52,6 +54,20 @@ export function MoreScreen() {
         </div>
       </div>
     ))}
-    <Button variant="ghost" className="text-danger" onClick={() => void signOut()}><Logout color="currentColor" size="20" /> Sign out</Button>
-  </div></div>;
+    <Button variant="ghost" className="text-danger" onClick={() => setConfirmOpen(true)}><Logout color="currentColor" size="20" /> Sign out</Button>
+  </div>
+  <Dialog.Root open={confirmOpen} onOpenChange={setConfirmOpen}>
+    <Dialog.Portal>
+      <Dialog.Backdrop className="sheet-backdrop" />
+      <Dialog.Viewport className="sheet-viewport">
+        <Dialog.Popup className="date-sheet thread-sheet" aria-label="Sign out">
+          <span className="sheet-handle" />
+          <div className="sheet-title"><span><Logout color="currentColor" size="22" /></span><div><Dialog.Title>Sign out?</Dialog.Title><Dialog.Description>You’ll need to sign in again to get back into your account.</Dialog.Description></div></div>
+          <Button onClick={() => void signOut()}>Sign out</Button>
+          <Button variant="ghost" onClick={() => setConfirmOpen(false)}>Cancel</Button>
+        </Dialog.Popup>
+      </Dialog.Viewport>
+    </Dialog.Portal>
+  </Dialog.Root>
+  </div>;
 }

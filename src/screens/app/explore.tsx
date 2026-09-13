@@ -2,7 +2,7 @@ import { useEffect, useRef, useState, type MouseEvent, type ReactNode } from "re
 import { Link, useNavigate } from "react-router-dom";
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Dialog } from "@base-ui/react/dialog";
-import { ArrowLeft2, Heart, Link21, Message, More, Profile2User, Save2, Send2, Trash } from "iconsax-react";
+import { ArrowLeft2, Heart, Link21, Message, More, Profile2User, Send2, Trash } from "iconsax-react";
 import { toast } from "sonner";
 import { useAuth } from "@/auth/auth-context";
 import { employeeApi } from "@/api/services";
@@ -12,6 +12,7 @@ import { QueryState, Pagination } from "@/components/screen";
 import { EmptyState, ErrorState } from "@/components/ui/states";
 import { initials, timeAgo } from "@/lib/utils";
 import { useMembers, type Person } from "@/lib/use-members";
+import { CreateClubModal } from "./clubs";
 import type { components } from "@/api/generated/schema";
 
 type Post = components["schemas"]["PostResponse"];
@@ -42,7 +43,7 @@ function refreshPosts(client: ReturnType<typeof useQueryClient>) {
 // One post as a Threads-style row: avatar rail on the left, then name + age,
 // text, media and the action strip. Tapping the row opens the thread; the
 // controls inside stop that so a like never also navigates.
-export function PostRow({ post, person, saved = false, detail = false }: { post: Post; person: Person; saved?: boolean; detail?: boolean }) {
+export function PostRow({ post, person, detail = false }: { post: Post; person: Person; detail?: boolean }) {
   const { user } = useAuth(); const client = useQueryClient(); const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
@@ -61,7 +62,6 @@ export function PostRow({ post, person, saved = false, detail = false }: { post:
     // refetched, otherwise the heart snaps back for a beat in between.
     onSuccess: async () => { await Promise.all([client.invalidateQueries({ queryKey: ["posts"] }), client.invalidateQueries({ queryKey: ["post-liked"] })]); setOptimistic(null); },
   });
-  const save = useMutation({ mutationFn: () => employeeApi.savePost(user!.organizationId, post.id, saved), onSuccess: () => { toast.success(saved ? "Removed from saved." : "Saved."); setMenuOpen(false); refreshPosts(client); }, onError: (error) => toast.error(error instanceof Error ? error.message : "Couldn’t save this post.") });
   const copy = useMutation({ mutationFn: () => navigator.clipboard.writeText(postUrl(post.id)), onSuccess: () => { toast.success("Link copied."); setMenuOpen(false); }, onError: () => toast.error("Couldn’t copy the link.") });
   const remove = useMutation({ mutationFn: () => employeeApi.deletePost(user!.organizationId, post.id), onSuccess: () => { toast.success("Post deleted."); setMenuOpen(false); refreshPosts(client); if (detail) navigate("/explore", { replace: true }); }, onError: (error) => toast.error(error instanceof Error ? error.message : "Couldn’t delete this post.") });
   const shareTo = useMutation({
@@ -106,7 +106,6 @@ export function PostRow({ post, person, saved = false, detail = false }: { post:
           <Dialog.Popup className="date-sheet thread-sheet" aria-label="Post options">
             <span className="sheet-handle" />
             <div className="thread-sheet-group">
-              <button type="button" disabled={save.isPending} onClick={() => save.mutate()}><span>{saved ? "Remove from saved" : "Save"}</span><Save2 size="22" color="currentColor" variant={saved ? "Bold" : "Linear"} /></button>
               <button type="button" disabled={copy.isPending} onClick={() => copy.mutate()}><span>Copy link</span><Link21 size="22" color="currentColor" /></button>
               <button type="button" onClick={() => { setMenuOpen(false); setShareOpen(true); }}><span>Share</span><Send2 size="22" color="currentColor" /></button>
             </div>
@@ -133,7 +132,7 @@ export function PostRow({ post, person, saved = false, detail = false }: { post:
             </> : <div className="share-sheet-row">
               <button type="button" disabled={shareTo.isPending} onClick={() => shareTo.mutate("whatsapp")}><span className="share-icon share-icon-whatsapp"><WhatsAppGlyph /></span><small>WhatsApp</small></button>
               <button type="button" disabled={shareTo.isPending} onClick={() => shareTo.mutate("linkedin")}><span className="share-icon share-icon-linkedin"><LinkedInGlyph /></span><small>LinkedIn</small></button>
-              <button type="button" onClick={() => setShareClubs(true)}><span className="share-icon"><Profile2User size="22" color="currentColor" /></span><small>Club</small></button>
+              <button type="button" onClick={() => setShareClubs(true)}><span className="share-icon share-icon-club"><Profile2User size="22" color="currentColor" /></span><small>Club</small></button>
               <button type="button" disabled={shareTo.isPending} onClick={() => shareTo.mutate("copy")}><span className="share-icon"><Link21 size="22" color="currentColor" /></span><small>Copy</small></button>
             </div>}
           </Dialog.Popup>
@@ -149,12 +148,12 @@ export function FeedSkeleton({ rows = 3 }: { rows?: number }) {
 
 // The feed itself: infinite scroll, a sentinel near the bottom pulls the next
 // page and shows Threads' grey placeholder rows while it lands.
-export function Feed({ saved = false, composer }: { saved?: boolean; composer?: ReactNode }) {
+export function Feed({ composer }: { composer?: ReactNode }) {
   const { user } = useAuth(); const { resolve } = useMembers();
   const sentinel = useRef<HTMLDivElement>(null);
   const query = useInfiniteQuery({
-    queryKey: ["posts", user?.organizationId, saved ? "saved" : "feed"],
-    queryFn: ({ pageParam }) => employeeApi.postPage(user!.organizationId, pageParam, saved),
+    queryKey: ["posts", user?.organizationId, "feed"],
+    queryFn: ({ pageParam }) => employeeApi.postPage(user!.organizationId, pageParam),
     initialPageParam: 0,
     getNextPageParam: (last) => { const next = last.offset + last.items.length; return last.items.length && next < last.total ? next : undefined; },
   });
@@ -169,7 +168,7 @@ export function Feed({ saved = false, composer }: { saved?: boolean; composer?: 
   const posts = query.data?.pages.flatMap((page) => page.items) ?? [];
   return <div className="thread-feed">
     {composer}
-    {query.isPending ? <FeedSkeleton /> : query.isError ? <div className="page-pad"><ErrorState retry={() => void query.refetch()} /></div> : posts.length ? posts.map((post) => <PostRow key={post.id} post={post} person={resolve(post.user_id)} saved={saved} />) : <div className="page-pad"><EmptyState title={saved ? "Nothing saved yet" : "Your feed is warming up"} body={saved ? "Save a post from its menu to find it here later." : "Be the first to share what’s new with your team."} /></div>}
+    {query.isPending ? <FeedSkeleton /> : query.isError ? <div className="page-pad"><ErrorState retry={() => void query.refetch()} /></div> : posts.length ? posts.map((post) => <PostRow key={post.id} post={post} person={resolve(post.user_id)} />) : <div className="page-pad"><EmptyState title="Your feed is warming up" body="Be the first to share what’s new with your team." /></div>}
     {hasNextPage && <div ref={sentinel} />}
     {isFetchingNextPage && <FeedSkeleton rows={2} />}
   </div>;
@@ -186,6 +185,7 @@ const tabs = [{ key: "feed", label: "Feed" }, { key: "clubs", label: "Clubs" }] 
 export function ExploreScreen() {
   const { me } = useMembers();
   const [tab, setTab] = useState<(typeof tabs)[number]["key"]>("feed");
+  const [createClubOpen, setCreateClubOpen] = useState(false);
   // The composer row doubles as the "new post" entry point; once it scrolls
   // away the floating + takes over.
   const composerRef = useRef<HTMLAnchorElement>(null);
@@ -200,10 +200,7 @@ export function ExploreScreen() {
   return <div className="thread-page spaces-page"><PageHeader title="Spaces" back />
     <div className="page-pad intro-pad"><div className="section-intro"><p className="eyebrow">Your community</p><h1 className="page-title">A little more<br />connected.</h1></div></div>
     <div className="sticky-tabs"><div className="segmented" role="tablist" aria-label="Spaces">{tabs.map((entry) => <button key={entry.key} type="button" role="tab" aria-selected={tab === entry.key} className={tab === entry.key ? "active" : ""} onClick={() => setTab(entry.key)}>{entry.label}</button>)}</div></div>
-    {tab === "feed" ? <><Feed composer={<Link ref={composerRef} className="thread-composer" to="/posts/new"><Avatar person={me} /><span className="thread-composer-box"><small>What’s new?</small></span></Link>} /><Fab to="/posts/new" label="New post" hidden={composerVisible} /></> : <><ClubsTab /><Fab to="/clubs/new" label="Create a club" /></>}
+    {tab === "feed" ? <><Feed composer={<Link ref={composerRef} className="thread-composer" to="/posts/new"><Avatar person={me} /><span className="thread-composer-box"><small>What’s new?</small></span></Link>} /><Fab to="/posts/new" label="New post" hidden={composerVisible} /></> : <><ClubsTab /><Fab onClick={() => setCreateClubOpen(true)} label="Create a club" /></>}
+    <CreateClubModal open={createClubOpen} onOpenChange={setCreateClubOpen} />
   </div>;
-}
-
-export function SavedPostsScreen() {
-  return <div className="detail-screen thread-page"><PageHeader title="Saved" back /><Feed saved /></div>;
 }

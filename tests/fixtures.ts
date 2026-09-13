@@ -44,7 +44,7 @@ export async function mockEmployeeApi(page:Page){
     if(path.endsWith('/challenges/challenge-1'))return ok(challenge);
     if(path.endsWith('/challenges/challenge-1/join')){challengeJoined=method==='POST';return ok({});}
     if(path.endsWith('/progress/me'))return challengeJoined?ok({challenge_id:'challenge-1',user_id:'user-1',target_type:'cumulative',target_value:'5000',current_value:'1200',percent_complete:'24',completed_at:null,days_remaining:5,daily_entries:[],days_met_target:null,days_logged:1}):route.fulfill({status:404,json:{detail:'Not joined'}});
-    if(path.endsWith('/posts')||path.endsWith('/posts/saved'))return ok(pageOf([post]));
+    if(path.endsWith('/posts'))return ok(pageOf([post]));
     if(path.endsWith('/posts/post-1'))return ok(post);
     if(path.endsWith('/posts/post-1/likes'))return ok(pageOf(liked?[{user_id:'user-1',first_name:'Yemi',last_name:'Ade'}]:[]));
     if(path.endsWith('/posts/post-1/like')){liked=method==='POST';return ok({});}

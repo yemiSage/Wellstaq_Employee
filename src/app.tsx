@@ -13,7 +13,6 @@ const HomeScreen = lazy(() => import("@/screens/app/home").then((module) => ({ d
 const ActivityScreen = lazy(() => import("@/screens/app/activity").then((module) => ({ default: module.ActivityScreen })));
 const CheckInScreen = lazy(() => import("@/screens/app/activity").then((module) => ({ default: module.CheckInScreen })));
 const ExploreScreen = lazy(() => import("@/screens/app/explore").then((module) => ({ default: module.ExploreScreen })));
-const SavedPostsScreen = lazy(() => import("@/screens/app/explore").then((module) => ({ default: module.SavedPostsScreen })));
 const EventsScreen = lazy(() => import("@/screens/app/events").then((module) => ({ default: module.EventsScreen })));
 const EventDetailScreen = lazy(() => import("@/screens/app/events").then((module) => ({ default: module.EventDetailScreen })));
 const MoreScreen = lazy(() => import("@/screens/app/more").then((module) => ({ default: module.MoreScreen })));
@@ -35,7 +34,6 @@ const ComposeScreen = lazy(() => import("@/screens/app/community").then(m => ({d
 const PostDetailScreen = lazy(() => import("@/screens/app/community").then(m => ({default:m.PostDetailScreen})));
 const StoryScreen = lazy(() => import("@/screens/app/community").then(m => ({default:m.StoryScreen})));
 const ClubDetailScreen = lazy(() => import("@/screens/app/clubs").then(m => ({default:m.ClubDetailScreen})));
-const CreateClubScreen = lazy(() => import("@/screens/app/clubs").then(m => ({default:m.CreateClubScreen})));
 const ChatScreen = lazy(() => import("@/screens/app/clubs").then(m => ({default:m.ChatScreen})));
 const MovementScreen = lazy(() => import("@/screens/app/movement").then(m => ({default:m.MovementScreen})));
 const LeaderboardScreen = lazy(() => import("@/screens/app/movement").then(m => ({default:m.LeaderboardScreen})));
@@ -72,11 +70,9 @@ export function App() {
         <Route path="/challenges/new" element={<CreateChallengeScreen />} />
         <Route path="/challenges/:challengeId" element={<ChallengeDetailScreen />} />
         <Route path="/posts/new" element={<ComposeScreen />} />
-        <Route path="/saved" element={<SavedPostsScreen />} />
         <Route path="/posts/:postId" element={<PostDetailScreen />} />
         <Route path="/stories/new" element={<ComposeScreen story />} />
         <Route path="/stories/:storyId" element={<StoryScreen />} />
-        <Route path="/clubs/new" element={<CreateClubScreen />} />
         <Route path="/clubs/:clubId" element={<ClubDetailScreen />} />
         <Route path="/clubs/:clubId/chat" element={<ChatScreen />} />
         <Route path="/notifications" element={<NotificationsScreen />} />

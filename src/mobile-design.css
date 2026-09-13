@@ -249,7 +249,10 @@ input, .select, .textarea { border-radius: var(--radius-control); font-size: 16p
 .thread-composer-box small { color: #9a9a9a; font-size: 15px; line-height: 20px; }
 .thread-avatar { display: grid; flex-shrink: 0; place-items: center; overflow: hidden; border-radius: 50%; background: #fff0e2; color: #a44700; font-size: 12px; font-weight: 700; }
 .thread-avatar img { width: 100%; height: 100%; object-fit: cover; }
-.thread-row { display: grid; grid-template-columns: 36px 1fr; gap: 12px; padding: 12px 16px 6px; border-bottom: 1px solid #e9e8e4; cursor: pointer; }
+/* Divider is inset to match the row's own side padding instead of a
+   border-bottom, which would run flush to the screen edges. */
+.thread-row { position: relative; display: grid; grid-template-columns: 36px 1fr; gap: 12px; padding: 12px 16px 6px; cursor: pointer; }
+.thread-row::after { content: ""; position: absolute; right: 16px; bottom: 0; left: 16px; height: 1px; background: #e9e8e4; }
 .thread-row.is-detail, .thread-row.is-reply, .thread-row.is-skeleton { cursor: default; }
 .thread-rail { display: flex; flex-direction: column; align-items: center; }
 .thread-body { display: block; min-width: 0; }
@@ -318,13 +321,18 @@ input, .select, .textarea { border-radius: var(--radius-control); font-size: 16p
 
 /* Share sheet: a row of icon "buttons" for each destination, Club drops into a picker. */
 .share-sheet-subhead { display: flex; align-items: center; gap: 10px; padding: 0 4px 4px; font-size: 15px; font-weight: 600; }
-.share-sheet-subhead button { display: grid; width: 32px; height: 32px; place-items: center; border: 0; border-radius: 50%; background: #f1f0ec; color: #202020; }
+/* Same bordered white squircle as the page header's back button, not a
+   one-off flat circle. */
+.share-sheet-subhead button { display: grid; width: 32px; height: 32px; place-items: center; border: 1px solid #e8e6e1; border-radius: 11px; background: #fff; color: #202020; }
 .share-sheet-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; padding: 4px 4px 6px; }
 .share-sheet-row button { display: grid; justify-items: center; gap: 8px; min-height: 0; border: 0; background: transparent; color: #202020; font-size: 12px; font-weight: 500; }
 .share-sheet-row button:disabled { opacity: .5; }
-.share-icon { display: grid; width: 52px; height: 52px; place-items: center; border-radius: 50%; background: #f1f0ec; color: #202020; }
-.share-icon-whatsapp { background: #25d366; color: #fff; }
-.share-icon-linkedin { background: #0a66c2; color: #fff; }
+/* Every destination gets the same treatment: a colored circle with a white
+   glyph, never a plain grey "no color" badge next to colored ones. */
+.share-icon { display: grid; width: 52px; height: 52px; place-items: center; border-radius: 50%; background: #202020; color: #fff; }
+.share-icon-whatsapp { background: #25d366; }
+.share-icon-linkedin { background: #0a66c2; }
+.share-icon-club { background: #ea6a05; }
 
 /* Clubs tab: same flat rows. */
 .club-row { display: grid; grid-template-columns: 48px 1fr auto; align-items: center; gap: 12px; padding: 12px 16px; border-bottom: 1px solid #e9e8e4; }
@@ -338,7 +346,8 @@ input, .select, .textarea { border-radius: var(--radius-control); font-size: 16p
 .club-row-state.is-joined { border-color: transparent; background: #eaf8ec; color: #376941; }
 
 [data-theme=dark] .reply-bar, [data-theme=dark] .compose-footer { background: rgb(32 37 31 / 94%); }
-[data-theme=dark] .thread-composer, [data-theme=dark] .thread-row, [data-theme=dark] .club-row, [data-theme=dark] .reply-bar { border-color: #41473e; }
+[data-theme=dark] .thread-composer, [data-theme=dark] .club-row, [data-theme=dark] .reply-bar { border-color: #41473e; }
+[data-theme=dark] .thread-row::after { background: #41473e; }
 [data-theme=dark] .thread-more, [data-theme=dark] .thread-text, [data-theme=dark] .thread-actions > *, [data-theme=dark] .compose-input, [data-theme=dark] .club-row-body p, [data-theme=dark] .club-row-state { color: #f0f1ed; }
 [data-theme=dark] .thread-composer-box { background: #2c322a; border-color: #41473e; }
 [data-theme=dark] .thread-actions > .is-liked { color: #ff5c6c; }
@@ -346,7 +355,7 @@ input, .select, .textarea { border-radius: var(--radius-control); font-size: 16p
 [data-theme=dark] .sticky-tabs { background: rgb(38 44 36 / 90%); }
 [data-theme=dark] .reply-bar-row input, [data-theme=dark] .thread-sheet-group button { color: #f0f1ed; }
 [data-theme=dark] .thread-sheet-group button { border-color: #41473e; }
-[data-theme=dark] .share-sheet-subhead button, [data-theme=dark] .share-icon { background: #343d30; color: #f0f1ed; }
+[data-theme=dark] .share-sheet-subhead button { background: #343d30; color: #f0f1ed; }
 [data-theme=dark] .section-empty-icon { background: #343d30; color: #8a9083; }
 [data-theme=dark] .share-sheet-row button { color: #f0f1ed; }
 [data-theme=dark] .reply-bar-row button { background: #f0f1ed; color: #20251f; }
@@ -357,6 +366,7 @@ input, .select, .textarea { border-radius: var(--radius-control); font-size: 16p
 /* Server-backed appearance preference; auth stays in its own light scene. */
 :root[data-theme=dark] { color-scheme: dark; --color-ink: #f0f1ed; --color-muted: #b4b6ae; --color-canvas: #20251f; --color-line: #41473e; --surface: #2c322a; }
 [data-theme=dark] .mobile-shell, [data-theme=dark] .detail-screen { background: #20251f !important; color: #f0f1ed; }
+[data-theme=dark] .avatar-edit-badge { border-color: #20251f; }
 [data-theme=dark] .bg-white, [data-theme=dark] .content-card, [data-theme=dark] .action-row, [data-theme=dark] .event-list-card, [data-theme=dark] .event-rail-card, [data-theme=dark] .settings-list, [data-theme=dark] .priority-option, [data-theme=dark] .chat-bubble { background: #2c322a; border-color: #41473e; }
 [data-theme=dark] .page-header, [data-theme=dark] .bottom-nav { background: rgb(38 44 36 / 94%); border-color: #41473e; }
 [data-theme=dark] .page-header button, [data-theme=dark] .header-icon { background: #343d30; color: #f0f1ed; }
@@ -371,6 +381,7 @@ input, .select, .textarea { border-radius: var(--radius-control); font-size: 16p
 [data-theme=dark] .eyebrow, [data-theme=dark] .text-link, [data-theme=dark] .ribbon-copy .eyebrow { color: #ffb77b; }
 [data-theme=dark] .settings-row, [data-theme=dark] .preference-row, [data-theme=dark] .session-card, [data-theme=dark] .notification-item { background: #2c322a; color: #f0f1ed; border-color: #41473e; }
 [data-theme=dark] input, [data-theme=dark] textarea, [data-theme=dark] .select { background: #252c22; color: #f0f1ed; border-color: #53614d; }
+[data-theme=dark] .select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none'%3E%3Cpath d='M6 9l6 6 6-6' stroke='%23b4b6ae' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"); }
 [data-theme=dark] .cover-picker-drop { background: #252c22; border-color: #53614d; color: #b4b6ae; }
 [data-theme=dark] .privacy-toggle button { background: #252c22; border-color: #53614d; color: #f0f1ed; }
 [data-theme=dark] .privacy-toggle button small { color: #b4b6ae; }
@@ -378,6 +389,11 @@ input, .select, .textarea { border-radius: var(--radius-control); font-size: 16p
 [data-theme=dark] .privacy-toggle button[aria-pressed="true"] small { color: #ffcfaa; }
 [data-theme=dark] .segmented { background: #343d30; }
 [data-theme=dark] .segmented button.active { background: #47553f; color: #fff; }
+[data-theme=dark] .modal-panel { background: #2c322a; border-color: #41473e; }
+[data-theme=dark] .modal-head, [data-theme=dark] .modal-actions { border-color: #41473e; }
+[data-theme=dark] .modal-actions { background: #262c25; }
+[data-theme=dark] .modal-head [data-slot="description"] { color: #b4b6ae; }
+[data-theme=dark] .modal-close { color: #b4b6ae; }
 [data-theme=dark] .chat-bubble.mine, [data-theme=dark] .priority-option.selected { background: #564026; color: #ffcfaa; }
 [data-theme=dark] .fab { background: #564026; color: #ffcfaa; }
 [data-theme=dark] .bottom-nav-link.active { color: #ffcfaa; }

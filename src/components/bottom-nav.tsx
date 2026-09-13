@@ -15,7 +15,7 @@ export function BottomNav() {
     <nav className="bottom-nav" aria-label="Main navigation">
       {items.map(({ to, label, icon: Icon }) => (
         <NavLink key={to} to={to} className={({ isActive }) => cn("bottom-nav-link", isActive && "active")}>
-          {({ isActive }) => <><Icon color="currentColor" size="22" variant={isActive ? "Bold" : "Linear"} /><span>{label}</span></>}
+          {({ isActive }) => <><Icon color="currentColor" size="22" variant="Linear" /><span>{label}</span></>}
         </NavLink>
       ))}
     </nav>

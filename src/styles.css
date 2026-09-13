@@ -199,7 +199,7 @@ h1 { overflow-wrap: anywhere; }
 
 .segmented { display: grid; grid-template-columns: 1fr 1fr; padding: 4px; border-radius: 15px; background: #ececec; }
 .segmented-3 { grid-template-columns: repeat(3, 1fr); }
-.segmented button { min-height: 42px; border: 0; border-radius: 11px; background: transparent; color: #686761; font-size: var(--text-body2); line-height: var(--leading-body2); font-weight: 600; }
+.segmented button { min-height: 34px; height: 34px; border: 0; border-radius: 11px; background: transparent; color: #686761; font-size: var(--text-body2); line-height: var(--leading-body2); font-weight: 600; }
 .segmented button.active { background: #f7f7f7; color: #202020; border: 1.5px solid #202020; }
 .event-list { display: grid; gap: 14px; }
 .event-list-card { display: grid; overflow: hidden; grid-template-columns: 112px 1fr; gap: 0; padding: 0; border: 1px solid #e8e6e1; border-radius: 21px; background: white; text-align: left; }
